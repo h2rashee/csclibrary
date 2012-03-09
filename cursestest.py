@@ -17,4 +17,15 @@ def showBold(stdscr):
         stdscr.refresh()
         stdscr.getch()
 
-curses.wrapper(showBold)
+def simplePrintw(stdscr):
+    mesg = "Just a string"
+
+    (row,col) = stdscr.getmaxyx()
+    stdscr.addstr(row/2, (col-len(mesg))/2, mesg)
+    stdscr.addstr(row-2, 0, "This screen has " +str(row)+ " rows and " +str(col)+ " columns\n")
+
+    stdscr.addstr("Try resizing window and running it again")
+    stdscr.refresh()
+    stdscr.getch()
+
+curses.wrapper(simplePrintw)
