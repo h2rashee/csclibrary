@@ -28,4 +28,28 @@ def simplePrintw(stdscr):
     stdscr.refresh()
     stdscr.getch()
 
-curses.wrapper(simplePrintw)
+def menutest(w, l):
+    i=0
+    for mitem in l:
+        w.addstr(i,0,mitem)
+        i+=1
+
+    highlight=0
+    ch=w.getch()
+    while (ch!=curses.KEY_F1):
+        if ch==curses.KEY_UP:
+            if highlight!=0:
+                w.chgat(highlight,0, 16, 0)
+                highlight -= 1
+                w.chgat(highlight,0, 16, curses.A_REVERSE)
+        if ch==curses.KEY_DOWN:
+            if highlight!=len(l):
+                w.chgat(highlight,0, 16, 0)
+                highlight += 1
+                w.chgat(highlight,0, 16, curses.A_REVERSE)
+        w.refresh()
+        ch = w.getch()
+
+
+menu = ["item 1", "poo", "add book/article/stuff", "update", "remove"]
+curses.wrapper(menutest, menu)
