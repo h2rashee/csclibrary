@@ -36,22 +36,30 @@ def menu(w, items):
                 w.chgat(highlight,0, curses.A_REVERSE)
         if ch==114 or ch==10:
             (s,f)=items[highlight]
-            win=curses.newwin(1,40,10,10)
+            win=curses.newwin(1,50,10,10)
             f(win)
         w.refresh()
         ch = w.getch()
 
-def poo(w):
-    w.addstr("POOOOOOOO!")
+
+def addMenu(w):
+    w.addstr("I will be an interface to add books")
     w.refresh()
 
-def other(w):
-    w.addstr("I am not poo")
+def updateMenu(w):
+    w.addstr("I will be used to update or modify book records")
     w.refresh()
 
-m = [("item 1", other),
-     ("poo", poo),
-     ("add book/article/stuff", other),
-     ("update", other),
-     ("remove", other)]
+def deleteMenu(w):
+    w.addstr("I will be used to delete book records")
+    w.refresh()
+
+def browseMenu(w):
+    w.addstr("I will be used to browse book records")
+    w.refresh()
+
+m = [("Browse Library", browseMenu),
+     ("Add Book or other item", addMenu),
+     ("Modify/Update record", updateMenu),
+     ("Remove book from catalogue", deleteMenu)]
 curses.wrapper(menutest, m)
