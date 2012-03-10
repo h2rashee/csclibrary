@@ -28,8 +28,11 @@ def simplePrintw(stdscr):
     stdscr.refresh()
     stdscr.getch()
 
-def menutest(w, l):
+def menutest(stdscr, l):
     curses.curs_set(0)
+    (rows,cols)=stdscr.getmaxyx()
+    w = curses.newwin(10,40,(rows-10)/2, (cols-40)/2)
+    w.keypad(1)
     (rows,cols)=w.getmaxyx()
     i=0
     for mitem in l:
