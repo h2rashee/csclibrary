@@ -33,27 +33,26 @@ def menutest(stdscr, l):
     (rows,cols)=stdscr.getmaxyx()
     w = curses.newwin(10,40,(rows-10)/2, (cols-40)/2)
     w.keypad(1)
-    (rows,cols)=w.getmaxyx()
     i=0
     for mitem in l:
         w.addstr(i,0,mitem)
         i+=1
 
     highlight=0
-    w.chgat(highlight,0, cols, curses.A_REVERSE)
+    w.chgat(highlight,0, curses.A_REVERSE)
     w.refresh()
     ch=w.getch()
     while (ch!=113): # leave on q
         if ch==curses.KEY_UP:
             if highlight!=0:
-                w.chgat(highlight,0, cols, 0)
+                w.chgat(highlight,0, 0)
                 highlight -= 1
-                w.chgat(highlight,0, cols, curses.A_REVERSE)
+                w.chgat(highlight,0, curses.A_REVERSE)
         if ch==curses.KEY_DOWN:
             if highlight!=len(l)-1:
-                w.chgat(highlight,0, cols, 0)
+                w.chgat(highlight,0, 0)
                 highlight += 1
-                w.chgat(highlight,0, cols, curses.A_REVERSE)
+                w.chgat(highlight,0, curses.A_REVERSE)
         w.refresh()
         ch = w.getch()
     
