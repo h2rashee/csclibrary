@@ -37,6 +37,8 @@ def menutest(w, l):
         i+=1
 
     highlight=0
+    w.chgat(highlight,0, cols, curses.A_REVERSE)
+    w.refresh()
     ch=w.getch()
     while (ch!=113): # leave on q
         if ch==curses.KEY_UP:
@@ -46,9 +48,9 @@ def menutest(w, l):
                 w.chgat(highlight,0, cols, curses.A_REVERSE)
         if ch==curses.KEY_DOWN:
             if highlight!=len(l)-1:
-                w.chgat(highlight,0, 16, 0)
+                w.chgat(highlight,0, cols, 0)
                 highlight += 1
-                w.chgat(highlight,0, 16, curses.A_REVERSE)
+                w.chgat(highlight,0, cols, curses.A_REVERSE)
         w.refresh()
         ch = w.getch()
     
