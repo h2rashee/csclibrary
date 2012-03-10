@@ -30,6 +30,7 @@ def simplePrintw(stdscr):
 
 def menutest(w, l):
     curses.curs_set(0)
+    (rows,cols)=w.getmaxyx()
     i=0
     for mitem in l:
         w.addstr(i,0,mitem)
@@ -40,9 +41,9 @@ def menutest(w, l):
     while (ch!=113): # leave on q
         if ch==curses.KEY_UP:
             if highlight!=0:
-                w.chgat(highlight,0, 16, 0)
+                w.chgat(highlight,0, cols, 0)
                 highlight -= 1
-                w.chgat(highlight,0, 16, curses.A_REVERSE)
+                w.chgat(highlight,0, cols, curses.A_REVERSE)
         if ch==curses.KEY_DOWN:
             if highlight!=len(l)-1:
                 w.chgat(highlight,0, 16, 0)
