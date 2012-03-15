@@ -183,5 +183,6 @@ def browseMenu():
 m = [("Browse Library", browseMenu),
      ("Add Book or other item", addForm),
      ("Modify/Update record", updateMenu),
-     ("Remove book from catalogue", deleteMenu)]
+     ("Remove book from catalogue", deleteMenu),
+     ("Exit", exit)]
 curses.wrapper(menutest, m)
