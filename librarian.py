@@ -37,6 +37,7 @@ def menu(w, items):
         if ch==114 or ch==10:
             (s,f)=items[highlight]
             f()
+            w.clear()
         w.refresh()
         ch = w.getch()
 
