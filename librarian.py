@@ -28,11 +28,15 @@ def menu(w, items):
             if highlight!=0:
                 w.chgat(highlight,0, 0)
                 highlight -= 1
+                while(items[highlight][0]==""):
+                    highlight -=1
                 w.chgat(highlight,0, curses.A_REVERSE)
         if ch==curses.KEY_DOWN:
             if highlight!=len(items)-1:
                 w.chgat(highlight,0, 0)
                 highlight += 1
+                while(items[highlight][0]==""):
+                    highlight +=1
                 w.chgat(highlight,0, curses.A_REVERSE)
         if ch==114 or ch==10:
             (s,f)=items[highlight]
@@ -69,7 +73,7 @@ def redrawForm(w, caption, items, buttonlabel, m):
 def bookForm(caption, book, buttonlabel):
     labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
               "Publisher", "Publish Date", "Publish Year", "Publish Month", "Publish location",
-              "Pages", "Pagination", "weight"]
+              "Pages", "Pagination", "Weight"]
     entries = []
     m = 0
     for l in labels:
@@ -92,6 +96,7 @@ def bookForm(caption, book, buttonlabel):
     r=3
     w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
     w.move(r,m+len(entries[highlight]))
+    cursor = len(entries[highlight])
     ch = w.getch()
     while (ch!=113):
         if ch==curses.KEY_UP:
@@ -101,15 +106,17 @@ def bookForm(caption, book, buttonlabel):
                 b = -1
                 r=3+2*highlight
                 w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
-                w.move(r,m+len(entries[highlight]))
+                cursor = len(entries[highlight])
+                w.move(r,m+cursor)
                 curses.curs_set(1)
             elif highlight!=0:
                 w.chgat(r,m,x-m-2,curses.A_NORMAL)
                 highlight -= 1
                 r=3+2*highlight
                 w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
-                w.move(r,m+len(entries[highlight]))
-        if ch==curses.KEY_DOWN:
+                cursor = len(entries[highlight])
+                w.move(r,m+cursor)
+        elif ch==curses.KEY_DOWN:
             if highlight >= len(labels) -1:
                 highlight = len(labels)
                 b += 1
@@ -123,8 +130,27 @@ def bookForm(caption, book, buttonlabel):
                 highlight += 1
                 r=3+2*highlight
                 w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
-                w.move(r,m+len(entries[highlight]))
-        if ch==10:
+                cursor = len(entries[highlight])
+                w.move(r,m+cursor)
+        elif ch==curses.KEY_LEFT:
+            if highlight == len(labels):
+                w.chgat(r,bcol[b],bwidth[b],curses.A_NORMAL)
+                b=0
+                w.chgat(r,bcol[b],bwidth[b],curses.A_REVERSE)
+            else:
+                if cursor>0:
+                    cursor-=1
+                    w.move(r,m+cursor)
+        elif ch==curses.KEY_RIGHT:
+            if highlight == len(labels):
+                w.chgat(r,bcol[b],bwidth[b],curses.A_NORMAL)
+                b=1
+                w.chgat(r,bcol[b],bwidth[b],curses.A_REVERSE)
+            else:
+                if cursor < len(entries[highlight]):
+                    cursor+=1
+                    w.move(r,m+cursor)
+        elif ch==10:
             if b != -1:
                 if b == 0:
                     w.clear()
@@ -146,7 +172,8 @@ def bookForm(caption, book, buttonlabel):
                 highlight += 1
                 r=3+2*highlight
                 w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
-                w.move(r,m+len(entries[highlight]))
+                cursor = len(entries[highlight])
+                w.move(r,m+cursor)
 
 
         w.refresh()
@@ -184,5 +211,6 @@ m = [("Browse Library", browseMenu),
      ("Add Book or other item", addForm),
      ("Modify/Update record", updateMenu),
      ("Remove book from catalogue", deleteMenu),
+     ("",exit),
      ("Exit", exit)]
 curses.wrapper(menutest, m)
