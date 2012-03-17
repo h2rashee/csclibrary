@@ -23,7 +23,7 @@ def menu(w, items):
 
     w.refresh()
     ch=w.getch()
-    while (ch!=113): # leave on q
+    while (ch!=113 or ch!=27): # leave on q or ESC
         if ch==curses.KEY_UP:
             if highlight!=0:
                 w.chgat(highlight,0, 0)
@@ -99,6 +99,11 @@ def bookForm(caption, book, buttonlabel):
     cursor = len(entries[highlight])
     ch = w.getch()
     while (1==1):
+        if ch==27: #escape key
+            curses.curs_set(0)
+            w.clear()
+            w.refresh()
+            return {}
         if ch==curses.KEY_UP:
             if highlight == len(labels):
                 w.chgat(r,bcol[b],bwidth[b],curses.A_NORMAL)
@@ -150,11 +155,20 @@ def bookForm(caption, book, buttonlabel):
                 if cursor < len(entries[highlight]):
                     cursor+=1
                     w.move(r,m+cursor)
-        elif ch>19 and ch<126:
+        elif ch>19 and ch<127:
             if highlight != len(labels):
-                cursor+=1
-                w.addch(ch,curses.A_UNDERLINE)
                 entries[highlight]=entries[highlight][:cursor] + curses.keyname(ch) + entries[highlight][cursor:]
+                cursor+=1
+                w.addnstr(r,m, entries[highlight]+(" "*40), x-m-2)
+                w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
+                w.move(r,m+cursor)
+        elif ch==curses.KEY_BACKSPACE:
+            if highlight != len(labels):
+                cursor-=1
+                entries[highlight]=entries[highlight][:cursor] + entries[highlight][cursor+1:]
+                w.addnstr(r,m, entries[highlight]+(" "*40), x-m-2)
+                w.chgat(r,m,x-m-2,curses.A_UNDERLINE)
+                w.move(r,m+cursor)
         elif ch==10:
             if b != -1:
                 if b == 0:
