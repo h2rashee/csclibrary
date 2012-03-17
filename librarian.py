@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import curses
+import sqCatalogue as db
 
 stdscr=0
 
@@ -79,7 +80,7 @@ def redrawForm(w, caption, items, buttonlabel, m):
 def lists_to_dict(l1, l2):
     book = {}
     for k,v in zip(l1,l2):
-        if v!="":
+        if v!="" and k.lower()!="publish date":
             book[k.lower()]=v
     return book
 
@@ -254,7 +255,9 @@ def bookForm(caption, book, buttonlabel):
 def addForm():
     book = {"title":"A Book of Tests", "pages":"123"}
     book = bookForm("Add a book", book, "add")
-    bookForm("View the book", book, "done")
+    #bookForm("View the book", book, "done")
+    if len(book)!=0:
+        db.addBook(book)
 
 
 def updateMenu():

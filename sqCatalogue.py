@@ -14,8 +14,9 @@ CREATE TABLE IF NOT EXISTS books
 def colify(s):
     return s.replace(" ","_").lower()
 
+# escapes strings and such
 def stringify(v):
-    return '"' + str(v).strip() + '"'
+    return '"' + str(v).strip().replace('"','""') + '"'
 
 def addBook(book):
     conn = sqlite3.connect(dbFile)
@@ -28,7 +29,6 @@ def addBook(book):
             vals.append(stringify(v))
     
     query = "INSERT INTO "+bookTable+" ("+", ".join(cols)+") VALUES ("+", ".join(vals)+");"
-    print query
     c.execute(query)
     conn.commit()
     c.close()
@@ -41,7 +41,3 @@ def createBooksTable():
     c.close()
 
 createBooksTable()
-book1 = {"title":"Test Book 1"}
-book2 = {"isbn":12345, "title":"Test Book 2"}
-addBook(book1)
-addBook(book2)
