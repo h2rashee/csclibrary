@@ -98,7 +98,7 @@ def bookForm(caption, book, buttonlabel):
     w.move(r,m+len(entries[highlight]))
     cursor = len(entries[highlight])
     ch = w.getch()
-    while (ch!=113):
+    while (1==1):
         if ch==curses.KEY_UP:
             if highlight == len(labels):
                 w.chgat(r,bcol[b],bwidth[b],curses.A_NORMAL)
@@ -150,6 +150,11 @@ def bookForm(caption, book, buttonlabel):
                 if cursor < len(entries[highlight]):
                     cursor+=1
                     w.move(r,m+cursor)
+        elif ch>19 and ch<126:
+            if highlight != len(labels):
+                cursor+=1
+                w.addch(ch,curses.A_UNDERLINE)
+                entries[highlight]=entries[highlight][:cursor] + curses.keyname(ch) + entries[highlight][cursor:]
         elif ch==10:
             if b != -1:
                 if b == 0:
