@@ -1,5 +1,4 @@
 import sqlite3
-from json import dumps
 
 dbFile = 'sqLibrary.db'
 bookTable = 'books'
@@ -127,5 +126,3 @@ def createTriggers():
 
 createBooksTable()
 createTriggers()
-books = getBooks()
-print dumps(books,indent=2)
