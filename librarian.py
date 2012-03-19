@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import curses
-import sqCatalogue as db
+import dbLayer as db
 
 stdscr=0
 
