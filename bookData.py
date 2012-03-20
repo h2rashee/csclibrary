@@ -7,7 +7,7 @@ The book is a dictionary of the form { string : a, ... }
 Keys:
   required: (ideally)
     title - Book/Article title
-    publishers - string containing semi-colon separated list eg. "UW Press; CSC, inc."
+    publisher - string containing semi-colon separated list eg. "UW Press; CSC, inc."
     authors - as above. each name is of the form "First Initials. Last" eg. "Calum T. Dalek; Conan T.B. Ladan"
   optional:
     subtitle - string
@@ -42,11 +42,11 @@ def openLibrary(ISBN):
         for v in openBook["authors"]:
             book['authors'] += "; " + v['name']
         book['authors'] = book['authors'][2:]
-    book["publishers"]=""
+    book["publisher"]=""
     if "publishers" in openBook:
         for v in openBook["publishers"]:
-            book["publishers"] += "; " + v['name']
-        book['publishers'] = book['publishers'][2:]
+            book["publisher"] += "; " + v['name']
+        book['publisher'] = book['publisher'][2:]
     if "publish_places" in openBook:
         book["publish locations"]=""
         for v in openBook["publish_places"]:
@@ -69,5 +69,3 @@ def openLibrary(ISBN):
         book["subtitle"]=openBook["subtitle"]
     return book
 
-book = openLibrary(9780865479104)
-print dumps(book,indent=2)

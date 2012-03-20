@@ -12,7 +12,7 @@ class bookForm:
     caption = "Add a Book"
     blabel = "Add"
     labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
-              "Publishers", "Publish Date", "Publish Year", "Publish Month", "Publish location",
+              "Publisher", "Publish Date", "Publish Year", "Publish Month", "Publish location",
               "Pages", "Pagination", "Weight"]
     entries = []
 
@@ -121,8 +121,7 @@ class bookForm:
         self.drawRow(self.hl)
         self.highlight()
 
-
-    def returnBook():
+    def returnBook(self):
         book = {}
         for k,v in zip(self.labels, self.entries):
             if v!="" and k.lower()!="publish date":
@@ -132,6 +131,7 @@ class bookForm:
     def eventLoop(self):
         self.w.keypad(1)
         self.refresh()
+        self.mvCursor(+len(self.entries[self.hl]))
         self.highlight()
 
         ch = self.w.getch()
