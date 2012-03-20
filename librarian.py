@@ -67,13 +67,11 @@ def redrawMenu(w,items,highlight):
 
 
 def addForm():
-    book = {"title":"A Book of Tests", "pages":"123"}
     w=curses.newwin(1,1,20,20)
     bf = bookForm.bookForm(w)
     bf.lookup=bookData.openLibrary
     bf.caption='Add a Book'
     bf.blabel = 'Add'
-    bf.updateEntries(book)
     book = bf.eventLoop()
     if len(book)!=0:
         db.addBook(book)

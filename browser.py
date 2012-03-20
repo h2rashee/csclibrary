@@ -25,6 +25,15 @@ class browserWindow:
         if len(newbook)!=0:
             db.updateBook(newbook,bookid)
 
+    def viewSelection(self,book):
+        bookid = book['id']
+        w=curses.newwin(1,1,20,20)
+        bf = bookForm(w)
+        bf.caption='Viewing Book '+str(bookid)
+        bf.blabel='done'
+        bf.updateEntries(book)
+        bf.eventLoop()
+
 
     def __init__(self,window):
         self.w = window
@@ -118,6 +127,12 @@ class browserWindow:
                 self.updateSelection(book)
                 self.books[self.hl]=db.getBookByID(book['id'])
                 self.refresh()
+
+            elif ch == 10:
+                book = self.books[self.hl]
+                self.viewSelection(book)
+                self.refresh()
+                
 
             self.w.refresh()
             ch = self.w.getch()
