@@ -15,7 +15,6 @@ class browserWindow:
         self.w = window
         self.updateGeometry()
         self.refreshBooks()
-        self.w.keypad(1)
 
     def refreshBooks(self):
         self.books = db.getBooks()
@@ -79,17 +78,18 @@ class browserWindow:
         self.refresh()
 
     def startBrowser(self):
+        self.w.keypad(1)
         self.refresh()
 
         ch = self.w.getch()
         while ch != 27 and ch != 113:
             if ch == curses.KEY_UP:
                 if self.hl == self.topline:
-                    self.scroll(-self.pageSize/2)
+                    self.scroll(-self.pageSize/2-1)
                 self.mvHighlight(-1)
             elif ch == curses.KEY_DOWN:
                 if self.hl == self.topline+self.pageSize-1:
-                    self.scroll(+self.pageSize/2)
+                    self.scroll(+self.pageSize/2+1)
                 self.mvHighlight(+1)
             elif ch == curses.KEY_PPAGE:
                 self.scroll(-self.pageSize)

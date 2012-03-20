@@ -1,67 +1,79 @@
-#!/usr/bin/env python
-
 import curses
-import dbLayer as db
-import browser
 
-stdscr=0
 
-def menutest(s, l):
-    global stdscr
-    stdscr=s
-    curses.curs_set(0)
-    (rows,cols)=stdscr.getmaxyx()
-    w = curses.newwin(10,40,(rows-10)/2, (cols-40)/2)
 
-    menu(w, l)
+
+
+class bookForm:
+    mx = my = 0
+    hl = 0
+    topline = 0
+    cursor = 0
+    left = 0
+    top = 2
+    caption = "Add a Book"
+    blabel = "Add"
+    labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
+              "Publisher", "Publish Date", "Publish Year", "Publish Month", "Publish location",
+              "Pages", "Pagination", "Weight"]
+    entries = []
+
+    def __init__(self,window):
+        self.w = window
+        self.w.resize(len(self.labels)+6,50)
+        self.updateEntries({})
+        self.updateGeometry()
+
+    def updateGeometry(self):
+        (self.my, self.mx) = self.w.getmaxyx()
+        for l in self.labels:
+            self.left = max(len(l),self.left)
+        self.left += 4
+        self.width = self.mx-self.left-2
+        self.top = 2
+        # next, the buttons
+        self.bcol = [self.mx-len(self.blabel)-14, self.mx-len(self.blabel)-4]
+        self.bwidth = [8,len(self.blabel)+2]
+
+    def updateEntries(self,book)
+        self.entries=[]
+        for l in self.labels:
+            if l.lower() in book:
+                self.entries.append(book[l.lower()])
+            else:
+                self.entries.append("")
+
+
+    def highlight(self):
+        if bt = -1:
+            self.w.chgat(self.row, self.left, self.width, curses.A_UNDERLINE)
+        else:
+            self.w.chgat(self.row, self.bcol[self.bt], self.bwidth[self.bt], curses.A_REVERSE)
+
+        
+        cursor = len(entries[highlight])
+        w.move(r,m+cursor)
+        curses.curs_set(1)
+        row = self.hl-self.topline+self.top
+        if row > 1 and row < self.my:
+            self.w.chgat(row,0,self.mx,curses.A_REVERSE)
+
+    def unHighlight(self):
+        row = self.hl-self.topline+self.top
+        if row > 1 and row < self.my:
+            self.w.chgat(row,0,self.mx,curses.A_NORMAL)
+
+    def mvHighlight(self,delta):
+        new = self.hl+delta
+        if self.hl = len(self.labels)+1:    # skip cancel button when going up
+            new -= 1
+        new = max(new,0)
+        new = min(new,len(self.labels)+1)   # there are two buttons, so add 2 to length
+        self.unHighlight()
+        self.hl = new
+        self.row = self.hl + self.top
+        self.highlight()
     
-    curses.curs_set(1)
-
-# item is a list of (string, callable) tuples
-def menu(w, items):
-    w.keypad(1)
-    highlight=0
-    redrawMenu(w,items,highlight)
-
-    w.refresh()
-    ch=w.getch()
-    while (ch!=113 and ch!=27): # leave on q or ESC
-        if ch==curses.KEY_UP:
-            if highlight!=0:
-                w.chgat(highlight,0, 0)
-                highlight -= 1
-                while(items[highlight][0]==""):
-                    highlight -=1
-                w.chgat(highlight,0, curses.A_REVERSE)
-        if ch==curses.KEY_DOWN:
-            if highlight!=len(items)-1:
-                w.chgat(highlight,0, 0)
-                highlight += 1
-                while(items[highlight][0]==""):
-                    highlight +=1
-                w.chgat(highlight,0, curses.A_REVERSE)
-        if ch==curses.KEY_PPAGE:
-            w.chgat(highlight,0, 0)
-            highlight = 0
-            w.chgat(highlight,0, curses.A_REVERSE)
-        if ch==curses.KEY_NPAGE:
-            w.chgat(highlight,0, 0)
-            highlight = len(items)-1
-            w.chgat(highlight,0, curses.A_REVERSE)
-        if ch==114 or ch==10:
-            (s,f)=items[highlight]
-            f()
-            redrawMenu(w,items,highlight)
-        w.refresh()
-        ch = w.getch()
-
-def redrawMenu(w,items,highlight):
-    i=0
-    for (mitem,fun) in items:
-        w.addstr(i,0, mitem)
-        i +=1
-    w.chgat(highlight, 0, curses.A_REVERSE)
-    w.refresh()
 
 # items is a list of (label, value) pairs
 def redrawForm(w, caption, items, buttonlabel, m):
@@ -93,13 +105,6 @@ def bookForm(caption, book, buttonlabel):
               "Pages", "Pagination", "Weight"]
     entries = []
     m = 0
-    for l in labels:
-        m = max(len(l),m)
-        if l.lower() in book:
-            entries.append(book[l.lower()])
-        else:
-            entries.append("")
-    m+=4
 
     w=curses.newwin(34,70,1,10)
     (y,x)=w.getmaxyx()
@@ -251,36 +256,3 @@ def bookForm(caption, book, buttonlabel):
     w.clear()
     w.refresh()
     return {}
-
-
-def addForm():
-    book = {"title":"A Book of Tests", "pages":"123"}
-    book = bookForm("Add a book", book, "add")
-    #bookForm("View the book", book, "done")
-    if len(book)!=0:
-        db.addBook(book)
-
-
-def updateMenu():
-    w=curses.newwin(1,50,10,10)
-    w.addstr("I will be used to update or modify book records")
-    w.refresh()
-
-def deleteMenu():
-    w=curses.newwin(1,50,10,10)
-    w.addstr("I will be used to delete book records")
-    w.refresh()
-
-def browseMenu():
-    w=curses.newwin(10,80,20,20)
-    b = browser.browserWindow(w)
-    b.startBrowser()
-
-
-m = [("Browse Library", browseMenu),
-     ("Add Book or other item", addForm),
-     ("Modify/Update record", updateMenu),
-     ("Remove book from catalogue", deleteMenu),
-     ("",exit),
-     ("Exit", exit)]
-curses.wrapper(menutest, m)
