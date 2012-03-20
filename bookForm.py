@@ -7,10 +7,11 @@ import curses
 class bookForm:
     mx = my = 0
     hl = 0
-    topline = 0
+    bt = -1
     cursor = 0
     left = 0
     top = 2
+    row = 2
     caption = "Add a Book"
     blabel = "Add"
     labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
@@ -18,24 +19,24 @@ class bookForm:
               "Pages", "Pagination", "Weight"]
     entries = []
 
-    def __init__(self,window):
+    def __init__(self,window,book={}):
         self.w = window
         self.w.resize(len(self.labels)+6,50)
-        self.updateEntries({})
+        self.updateEntries(book)
         self.updateGeometry()
 
     def updateGeometry(self):
         (self.my, self.mx) = self.w.getmaxyx()
         for l in self.labels:
             self.left = max(len(l),self.left)
-        self.left += 4
+        self.left += 2
         self.width = self.mx-self.left-2
         self.top = 2
         # next, the buttons
         self.bcol = [self.mx-len(self.blabel)-14, self.mx-len(self.blabel)-4]
         self.bwidth = [8,len(self.blabel)+2]
 
-    def updateEntries(self,book)
+    def updateEntries(self,book):
         self.entries=[]
         for l in self.labels:
             if l.lower() in book:
@@ -43,37 +44,73 @@ class bookForm:
             else:
                 self.entries.append("")
 
+    def refresh(self):
+        self.updateGeometry()
+        self.w.box()
+        self.w.addstr(0,(self.mx-len(self.caption))/2,self.caption)
+        r=self.top
+        for l,v in zip(self.labels,self.entries):
+            c = self.left-len(l)-2
+            self.w.addstr(r,c,l+":")
+            self.w.addnstr(r,self.left,v,self.width)
+            r+=1
+        self.w.addstr(r+1,self.bcol[0], "<cancel>  <"+self.blabel+">")
+        self.w.refresh()
 
     def highlight(self):
-        if bt = -1:
+        if self.bt == -1:
             self.w.chgat(self.row, self.left, self.width, curses.A_UNDERLINE)
+            self.cursor = len(self.entries[self.hl])
+            self.w.move(self.row, self.left+self.cursor)
+            curses.curs_set(1)
         else:
             self.w.chgat(self.row, self.bcol[self.bt], self.bwidth[self.bt], curses.A_REVERSE)
-
-        
-        cursor = len(entries[highlight])
-        w.move(r,m+cursor)
-        curses.curs_set(1)
-        row = self.hl-self.topline+self.top
-        if row > 1 and row < self.my:
-            self.w.chgat(row,0,self.mx,curses.A_REVERSE)
+            curses.curs_set(0)
 
     def unHighlight(self):
-        row = self.hl-self.topline+self.top
-        if row > 1 and row < self.my:
-            self.w.chgat(row,0,self.mx,curses.A_NORMAL)
+        self.w.chgat(self.row,1,self.mx-2,curses.A_NORMAL)
 
     def mvHighlight(self,delta):
-        new = self.hl+delta
-        if self.hl = len(self.labels)+1:    # skip cancel button when going up
-            new -= 1
-        new = max(new,0)
-        new = min(new,len(self.labels)+1)   # there are two buttons, so add 2 to length
         self.unHighlight()
+        new = self.hl+delta
+        new = max(new,0)
+        new = min(new,len(self.labels))   # the extra is for the buttons
         self.hl = new
         self.row = self.hl + self.top
+        if new == len(self.labels):
+            self.bt+=1
+            self.bt = min(self.bt,1)
+            self.row+=1
+        else:
+            self.bt=-1
         self.highlight()
-    
+
+    def eventLoop(self):
+        self.w.keypad(1)
+        self.refresh()
+        self.highlight()
+
+        ch = self.w.getch()
+        while ch != 27:
+            if ch==curses.KEY_UP:
+                self.mvHighlight(-1)
+            elif ch==curses.KEY_PPAGE:
+                self.mvHighlight(-len(self.labels))
+            elif ch==curses.KEY_DOWN:
+                self.mvHighlight(+1)
+            elif ch==curses.KEY_NPAGE:
+                self.mvHighlight(+len(self.labels))
+            self.w.refresh()
+            ch = self.w.getch()
+        
+
+
+def test(stdscr):
+    w = curses.newwin(10,10,10,10)
+    bf = bookForm(w)
+    bf.eventLoop()
+
+curses.wrapper(test)
 
 # items is a list of (label, value) pairs
 def redrawForm(w, caption, items, buttonlabel, m):
