@@ -24,6 +24,7 @@ class browserWindow:
         newbook = bf.eventLoop()
         if len(newbook)!=0:
             db.updateBook(newbook,bookid)
+        bf.clear()
 
     def viewSelection(self,book):
         bookid = book['id']
@@ -33,6 +34,11 @@ class browserWindow:
         bf.blabel='done'
         bf.updateEntries(book)
         bf.eventLoop()
+        bf.clear()
+
+    def clear(self):
+        self.w.erase()
+        self.w.refresh()
 
 
     def __init__(self,window):

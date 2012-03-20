@@ -73,6 +73,7 @@ def addForm():
     bf.caption='Add a Book'
     bf.blabel = 'Add'
     book = bf.eventLoop()
+    bf.clear()
     if len(book)!=0:
         db.addBook(book)
 
@@ -91,6 +92,7 @@ def browseMenu():
     w=curses.newwin(10,80,20,20)
     b = browser.browserWindow(w)
     b.startBrowser()
+    b.clear()
 
 
 m = [("Browse Library", browseMenu),

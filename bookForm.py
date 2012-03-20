@@ -21,6 +21,10 @@ class bookForm:
     def lookup(self,isbn):
         return {'isbn':isbn}
 
+    def clear(self):
+        self.w.erase()
+        self.w.refresh()
+
     def __init__(self,window,book={}):
         self.w = window
         self.w.resize(len(self.labels)+6,50)
