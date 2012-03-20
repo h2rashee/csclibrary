@@ -2,18 +2,20 @@ import curses
 import dbLayer as db
 
 class browserWindow:
-    hl = 0
+    hl=0
     books = []
     topline = 0
-    columns = [('Title',20),
-               ('Authors',10)]
+    columns = [('ID',3),
+               ('Title',30),
+               ('Authors',20),
+               ('ISBN',13)]
     mx = my = 0
 
     def __init__(self,window):
         self.w = window
         self.updateGeometry()
         self.refreshBooks()
-        self.sortByColumn('title')
+        self.w.keypad(1)
 
     def refreshBooks(self):
         self.books = db.getBooks()
@@ -23,14 +25,15 @@ class browserWindow:
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
+        self.pageSize = self.my-3
         # maybe recalculate column widths here.
 
     def refresh(self):
         self.displayHeader()
-        for r in range(0,self.my-2):
+        for r in range(0,self.pageSize):
             self.displayRow(r)
-        self.highlight(self.hl)
         self.w.refresh()
+        self.highlight()
 
     def displayHeader(self):
         cursor = 0
@@ -45,19 +48,58 @@ class browserWindow:
             cursor = 0
             for k,width in self.columns:
                 if k.lower() in book:
-                    self.w.addnstr(row+2,cursor,book[k.lower()],width)
+                    self.w.addnstr(row+2,cursor,str(book[k.lower()])+" "*width,width)
                 cursor += width+1
         else:
-            self.w.addstr(row,0," "*self.mx)
+            self.w.addstr(row+2,0," "*self.mx)
 
-    def highlight(self,row):
-        self.w.chgat(self.hl+2,0,self.mx,curses.A_NORMAL)
-        self.hl=row
-        self.w.chgat(self.hl+2,0,self.mx,curses.A_REVERSE)
+    def highlight(self):
+        row = self.hl-self.topline+2
+        if row > 1 and row < self.my:
+            self.w.chgat(row,0,self.mx,curses.A_REVERSE)
+
+    def unHighlight(self):
+        row = self.hl-self.topline+2
+        if row > 1 and row < self.my:
+            self.w.chgat(row,0,self.mx,curses.A_NORMAL)
+
+    def mvHighlight(self,delta):
+        new = self.hl+delta
+        new = max(new,0)
+        new = min(new,len(self.books)-1)
+        self.unHighlight()
+        self.hl = new
+        self.highlight()
+    
+    def scroll(self,delta):
+        self.unHighlight()
+        self.topline += delta
+        self.topline = max(self.topline,0)
+        self.topline = min(self.topline,len(self.books)-1)
+        self.refresh()
 
     def startBrowser(self):
         self.refresh()
-        self.w.getch()
+
+        ch = self.w.getch()
+        while ch != 27 and ch != 113:
+            if ch == curses.KEY_UP:
+                if self.hl == self.topline:
+                    self.scroll(-self.pageSize/2)
+                self.mvHighlight(-1)
+            elif ch == curses.KEY_DOWN:
+                if self.hl == self.topline+self.pageSize-1:
+                    self.scroll(+self.pageSize/2)
+                self.mvHighlight(+1)
+            elif ch == curses.KEY_PPAGE:
+                self.scroll(-self.pageSize)
+                self.mvHighlight(-self.pageSize)
+            elif ch == curses.KEY_NPAGE:
+                self.scroll(+self.pageSize)
+                self.mvHighlight(+self.pageSize)
+
+            self.w.refresh()
+            ch = self.w.getch()
 
 
 

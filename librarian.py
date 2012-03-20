@@ -272,9 +272,12 @@ def deleteMenu():
     w.refresh()
 
 def browseMenu():
-    w=curses.newwin(50,50,10,10)
+    w=curses.newwin(10,80,20,20)
     b = browser.browserWindow(w)
     b.startBrowser()
+    w.box()
+    w.refresh()
+    w.getch()
 
 
 m = [("Browse Library", browseMenu),
