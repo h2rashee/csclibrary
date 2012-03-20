@@ -2,6 +2,7 @@
 
 import curses
 import dbLayer as db
+import browser
 
 stdscr=0
 
@@ -271,9 +272,10 @@ def deleteMenu():
     w.refresh()
 
 def browseMenu():
-    w=curses.newwin(1,50,10,10)
-    w.addstr("I will be used to browse book records")
-    w.refresh()
+    w=curses.newwin(50,50,10,10)
+    b = browser.browserWindow(w)
+    b.startBrowser()
+
 
 m = [("Browse Library", browseMenu),
      ("Add Book or other item", addForm),
