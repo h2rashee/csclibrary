@@ -1,5 +1,6 @@
 import curses
 import dbLayer as db
+from bookForm import bookForm
 
 class browserWindow:
     hl=0
@@ -10,6 +11,20 @@ class browserWindow:
                ('Authors',20),
                ('ISBN',13)]
     mx = my = 0
+
+    # redefinable functions
+    def updateSelection(self,book):
+        bookid = book['id']
+        
+        w=curses.newwin(1,1,20,20)
+        bf=bookForm(w)
+        bf.caption='Update Book '+str(bookid)
+        bf.blabel='update'
+        bf.updateEntries(book)
+        newbook = bf.eventLoop()
+        if len(newbook)!=0:
+            db.updateBook(newbook,bookid)
+
 
     def __init__(self,window):
         self.w = window
@@ -97,6 +112,12 @@ class browserWindow:
             elif ch == curses.KEY_NPAGE:
                 self.scroll(+self.pageSize)
                 self.mvHighlight(+self.pageSize)
+            
+            elif ch == 117:
+                book = self.books[self.hl]
+                self.updateSelection(book)
+                self.books[self.hl]=db.getBookByID(book['id'])
+                self.refresh()
 
             self.w.refresh()
             ch = self.w.getch()

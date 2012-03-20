@@ -17,7 +17,7 @@ Keys:
     publish date - string of date (to make things easier to code/catalogue (won't be stored)
     publish year - int (this kind of thing will have to be confirmed by cataloguer)
     publish month - int
-    publish locations - like publishers
+    publish location - like publisher
     
     pages - integer - just the number of pages
     pagination - string eg. "xviii, 1327-1850"
@@ -48,10 +48,10 @@ def openLibrary(ISBN):
             book["publisher"] += "; " + v['name']
         book['publisher'] = book['publisher'][2:]
     if "publish_places" in openBook:
-        book["publish locations"]=""
+        book["publish location"]=""
         for v in openBook["publish_places"]:
-            book["publish locations"] += "; " + v['name']
-        book['publish locations'] = book['publish locations'][2:]
+            book["publish location"] += "; " + v['name']
+        book['publish location'] = book['publish location'][2:]
 
     # for lccn, there maybe be multiple values in the query. I'm just taking the first, but the full list may be useful
     if "lccn" in openBook['identifiers']:

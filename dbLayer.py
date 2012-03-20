@@ -73,14 +73,10 @@ def addBook(book):
 def updateBook(book, bookID):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    cols = []
-    vals = []
+    updates=[]
     for k,v in book.items():
-        if v!="":
-            cols.append(colify(k))
-            vals.append(stringify(v))
-    
-    query = "UPDATE "+bookTable+" ("+", ".join(cols)+") VALUES ("+", ".join(vals)+") WHERE id = " +bookID+";"
+        updates.append(colify(k)+"="+stringify(v))
+    query = "UPDATE "+bookTable+" SET " +  ", ".join(updates)+" WHERE id = " +str(bookID)+";"
     c.execute(query)
     conn.commit()
     c.close()
@@ -102,10 +98,26 @@ def getBooks():
     c.close()
     return books
 
-def removeBook():
+def getBookByID(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "DELETE FROM " +bookTable+ " WHERE id = "+str(id)+";"
+    query = "SELECT * FROM "+bookTable+" WHERE id = "+str(bookid)+";"
+    c.execute(query)
+    b = c.fetchone()
+    book = {}
+    i=0
+    for k in columns:
+        if b[i]!=None:
+            book[k]=b[i]
+        i+=1
+    c.close()
+    return book
+
+
+def removeBook(bookid):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "DELETE FROM " +bookTable+ " WHERE id = "+str(bookid)+";"
     c.execute(query)
     conn.commit()
     c.close()

@@ -67,7 +67,7 @@ class bookForm:
     def highlight(self):
         if self.bt == -1:
             self.w.chgat(self.row, self.left, self.width, curses.A_UNDERLINE)
-            self.w.move(self.row, self.left+self.cursor)
+            self.mvCursor(0)
             curses.curs_set(1)
         else:
             self.w.chgat(self.row, self.bcol[self.bt], self.bwidth[self.bt], curses.A_REVERSE)
@@ -105,15 +105,15 @@ class bookForm:
         c = self.cursor
         self.entries[self.hl]=self.entries[self.hl][:c] +ch+  self.entries[self.hl][c:]
         self.drawRow(self.hl)
-        self.highlight()
         self.mvCursor(+1)
+        self.highlight()
 
     def backspace(self):
         if self.cursor>0:
             self.entries[self.hl]=self.entries[self.hl][:self.cursor-1] + self.entries[self.hl][self.cursor:]
             self.drawRow(self.hl)
-            self.highlight()
             self.mvCursor(-1)
+            self.highlight()
 
     def delete(self):
         c = self.cursor
