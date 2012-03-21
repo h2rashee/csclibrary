@@ -4,15 +4,27 @@ import curses
 import dbLayer as db
 import browser
 import bookForm
+import helpBar
+
 import bookData
 
+
 stdscr=0
+hb=0
+
+menu_commands = [(' q','quit')]
+browser_commands = [(' u','update'), (' d','delete'), (' q','quit')]
 
 def menutest(s, l):
     global stdscr
+    global hb
     stdscr=s
     curses.curs_set(0)
     (rows,cols)=stdscr.getmaxyx()
+    bar = curses.newwin(1,cols-2,rows-1,1)
+    hb = helpBar.helpBar(bar)
+    hb.command=menu_commands
+    hb.refresh()
     w = curses.newwin(10,40,(rows-10)/2, (cols-40)/2)
 
     menu(w, l)
@@ -64,10 +76,15 @@ def redrawMenu(w,items,highlight):
         i +=1
     w.chgat(highlight, 0, curses.A_REVERSE)
     w.refresh()
+    hb.commands=menu_commands
+    hb.refresh()
 
 
 def addForm():
-    w=curses.newwin(1,1,20,20)
+    w=curses.newwin(1,1)
+    (my,mx)=stdscr.getmaxyx()
+    (r,c)=w.getmaxyx()
+    w.mvwin((my-r)/2,(mx-c)/2)
     bf = bookForm.bookForm(w)
     bf.lookup=bookData.openLibrary
     bf.caption='Add a Book'
@@ -89,8 +106,11 @@ def deleteMenu():
     w.refresh()
 
 def browseMenu():
-    w=curses.newwin(30,80,20,20)
+    (my,mx)=stdscr.getmaxyx()
+    w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
     b = browser.browserWindow(w)
+    hb.commands=browser_commands
+    hb.refresh()
     b.startBrowser()
     b.clear()
 
