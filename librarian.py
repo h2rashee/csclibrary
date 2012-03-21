@@ -89,7 +89,7 @@ def deleteMenu():
     w.refresh()
 
 def browseMenu():
-    w=curses.newwin(10,80,20,20)
+    w=curses.newwin(30,80,20,20)
     b = browser.browserWindow(w)
     b.startBrowser()
     b.clear()

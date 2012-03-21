@@ -6,10 +6,11 @@ class browserWindow:
     hl=0
     books = []
     topline = 0
-    columns = [('ID',3),
-               ('Title',30),
-               ('Authors',20),
-               ('ISBN',13)]
+    # column definitions are in (label, weight, specified width) triples
+    columnDefs = [('ID',0,3),
+                  ('ISBN',0,13),
+                  ('Authors',30,None),
+                  ('Title',60,None)]
     mx = my = 0
 
     # redefinable functions
@@ -44,6 +45,7 @@ class browserWindow:
     def __init__(self,window):
         self.w = window
         self.updateGeometry()
+        self.calcColWidths()
         self.refreshBooks()
 
     def refreshBooks(self):
@@ -56,6 +58,23 @@ class browserWindow:
         (self.my,self.mx)=self.w.getmaxyx()
         self.pageSize = self.my-3
         # maybe recalculate column widths here.
+
+    def calcColWidths(self):
+        total_weights = 0
+        available_space = self.mx - len(self.columnDefs)
+        cols = []
+        for label,weight,value in self.columnDefs:
+            if value!=None:
+                available_space -= value
+            else:
+                total_weights+=weight
+
+        for label,weight,value in self.columnDefs:
+            if value!=None:
+                cols.append((label,value))
+            else:
+                cols.append((label,available_space*weight/total_weights))
+        self.columns=cols
 
     def refresh(self):
         self.displayHeader()
