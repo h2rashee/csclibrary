@@ -7,10 +7,7 @@ class browserWindow:
     entries = []
     topline = 0
     # column definitions are in (label, weight, specified width) triples
-    columnDefs = [('ID',0,3),
-                  ('ISBN',0,13),
-                  ('Authors',30,None),
-                  ('Title',60,None)]
+    columnDefs = [('something',1,None)]
     mx = my = 0
 
 
@@ -21,7 +18,6 @@ class browserWindow:
     def __init__(self,window):
         self.w = window
         self.updateGeometry()
-        self.refreshBooks()
 
     def sortByColumn(self, col):
         self.entries.sort() # key=dict.get(col))
@@ -127,6 +123,10 @@ class browserWindow:
 
 
 class bookBrowser(browserWindow):
+    columnDefs = [('ID',0,3),
+                  ('ISBN',0,13),
+                  ('Authors',30,None),
+                  ('Title',60,None)]
     # redefinable functions
     def updateSelection(self,book):
         bookid = book['id']
@@ -165,4 +165,17 @@ class bookBrowser(browserWindow):
             book = self.entries[self.hl]
             self.viewSelection(book)
             self.refresh()
+
+def categoryBrowser():
+    columnDefs = [('ID',0,3),
+                  ('Category',100,None)]
+
+    def refreshCategories(self):
+        self.entries = []
+        cats = db.getCategories()
+        for c in cats:
+            self.entries.append({'category':c})
+
+    def handleInput(self,ch):
+        browserWindow.handleInput(self,ch)
 
