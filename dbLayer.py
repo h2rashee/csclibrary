@@ -70,13 +70,18 @@ BEGIN
 END;
 '''
 
+################################3
+# character escaping, etc for sql queries
+#################################
 def colify(s):
     return s.replace(" ","_").lower()
 
-# escapes strings and such
 def stringify(v):
     return '"' + str(v).strip().replace('"','""') + '"'
 
+###################################
+# book functions
+##################################
 def addBook(book):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -190,7 +195,7 @@ def getCategories():
 def addCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)");"
+    query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
     c.execte(query)
     c.close()
 
