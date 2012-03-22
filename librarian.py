@@ -108,10 +108,10 @@ def deleteMenu():
 def browseMenu():
     (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
-    b = browser.browserWindow(w)
+    b = browser.bookBrowser(w)
     hb.commands=browser_commands
     hb.refresh()
-    b.startBrowser()
+    b.eventLoop()
     b.clear()
 
 

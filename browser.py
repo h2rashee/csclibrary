@@ -4,7 +4,7 @@ from bookForm import bookForm
 
 class browserWindow:
     hl=0
-    books = []
+    entries = []
     topline = 0
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('ID',0,3),
@@ -13,51 +13,23 @@ class browserWindow:
                   ('Title',60,None)]
     mx = my = 0
 
-    # redefinable functions
-    def updateSelection(self,book):
-        bookid = book['id']
-        
-        w=curses.newwin(1,1,20,20)
-        bf=bookForm(w)
-        bf.caption='Update Book '+str(bookid)
-        bf.blabel='update'
-        bf.updateEntries(book)
-        newbook = bf.eventLoop()
-        if len(newbook)!=0:
-            db.updateBook(newbook,bookid)
-        bf.clear()
-
-    def viewSelection(self,book):
-        bookid = book['id']
-        w=curses.newwin(1,1,20,20)
-        bf = bookForm(w)
-        bf.caption='Viewing Book '+str(bookid)
-        bf.blabel='done'
-        bf.updateEntries(book)
-        bf.eventLoop()
-        bf.clear()
 
     def clear(self):
         self.w.erase()
         self.w.refresh()
 
-
     def __init__(self,window):
         self.w = window
         self.updateGeometry()
-        self.calcColWidths()
         self.refreshBooks()
 
-    def refreshBooks(self):
-        self.books = db.getBooks()
-
     def sortByColumn(self, col):
-        self.books.sort() # key=dict.get(col))
+        self.entries.sort() # key=dict.get(col))
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
         self.pageSize = self.my-3
-        # maybe recalculate column widths here.
+        self.calcColWidths()
 
     def calcColWidths(self):
         total_weights = 0
@@ -91,12 +63,12 @@ class browserWindow:
             cursor += width+1
 
     def displayRow(self,row):
-        if self.topline+row < len(self.books):
-            book = self.books[self.topline+row]
+        if self.topline+row < len(self.entries):
+            entry = self.entries[self.topline+row]
             cursor = 0
             for k,width in self.columns:
-                if k.lower() in book:
-                    self.w.addnstr(row+2,cursor,str(book[k.lower()])+" "*width,width)
+                if k.lower() in entry:
+                    self.w.addnstr(row+2,cursor,str(entry[k.lower()])+" "*width,width)
                 cursor += width+1
         else:
             self.w.addstr(row+2,0," "*self.mx)
@@ -114,7 +86,7 @@ class browserWindow:
     def mvHighlight(self,delta):
         new = self.hl+delta
         new = max(new,0)
-        new = min(new,len(self.books)-1)
+        new = min(new,len(self.entries)-1)
         self.unHighlight()
         self.hl = new
         self.highlight()
@@ -123,47 +95,74 @@ class browserWindow:
         self.unHighlight()
         self.topline += delta
         self.topline = max(self.topline,0)
-        self.topline = min(self.topline,len(self.books)-1)
+        self.topline = min(self.topline,len(self.entries)-1)
         self.refresh()
 
-    def startBrowser(self):
+    def eventLoop(self):
         self.w.keypad(1)
         self.refresh()
 
         ch = self.w.getch()
         while ch != 27 and ch != 113:
-            if ch == curses.KEY_UP:
-                if self.hl == self.topline:
-                    self.scroll(-self.pageSize/2-1)
-                self.mvHighlight(-1)
-            elif ch == curses.KEY_DOWN:
-                if self.hl == self.topline+self.pageSize-1:
-                    self.scroll(+self.pageSize/2+1)
-                self.mvHighlight(+1)
-            elif ch == curses.KEY_PPAGE:
-                self.scroll(-self.pageSize)
-                self.mvHighlight(-self.pageSize)
-            elif ch == curses.KEY_NPAGE:
-                self.scroll(+self.pageSize)
-                self.mvHighlight(+self.pageSize)
-            
-            elif ch == 117:
-                book = self.books[self.hl]
-                self.updateSelection(book)
-                self.books[self.hl]=db.getBookByID(book['id'])
-                self.refresh()
-
-            elif ch == 10:
-                book = self.books[self.hl]
-                self.viewSelection(book)
-                self.refresh()
-                
-
+            self.handleInput(ch)
             self.w.refresh()
             ch = self.w.getch()
 
+    def handleInput(self,ch):
+        if ch == curses.KEY_UP:
+            if self.hl == self.topline:
+                self.scroll(-self.pageSize/2-1)
+            self.mvHighlight(-1)
+        elif ch == curses.KEY_DOWN:
+            if self.hl == self.topline+self.pageSize-1:
+                self.scroll(+self.pageSize/2+1)
+            self.mvHighlight(+1)
+        elif ch == curses.KEY_PPAGE:
+            self.scroll(-self.pageSize)
+            self.mvHighlight(-self.pageSize)
+        elif ch == curses.KEY_NPAGE:
+            self.scroll(+self.pageSize)
+            self.mvHighlight(+self.pageSize)
 
 
 
+class bookBrowser(browserWindow):
+    # redefinable functions
+    def updateSelection(self,book):
+        bookid = book['id']
+        
+        w=curses.newwin(1,1,20,20)
+        bf=bookForm(w)
+        bf.caption='Update Book '+str(bookid)
+        bf.blabel='update'
+        bf.updateEntries(book)
+        newbook = bf.eventLoop()
+        if len(newbook)!=0:
+            db.updateBook(newbook,bookid)
+        bf.clear()
 
+    def viewSelection(self,book):
+        bookid = book['id']
+        w=curses.newwin(1,1,20,20)
+        bf = bookForm(w)
+        bf.caption='Viewing Book '+str(bookid)
+        bf.blabel='done'
+        bf.updateEntries(book)
+        bf.eventLoop()
+        bf.clear()
+
+    def refreshBooks(self):
+        self.entries = db.getBooks()
+
+    def handleInput(self,ch):
+        browserWindow.handleInput(self,ch)
+        if ch == 117: #update on 'u'
+            book = self.entries[self.hl]
+            self.updateSelection(entries)
+            self.entries[self.hl]=db.getBookByID(book['id'])
+            self.refresh()
+        elif ch == 10:
+            book = self.entries[self.hl]
+            self.viewSelection(book)
+            self.refresh()
 
