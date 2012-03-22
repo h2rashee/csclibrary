@@ -179,7 +179,8 @@ class bookForm:
             elif ch==10 or ch==curses.KEY_ENTER:
                 if self.hl==0:
                     book = self.lookup(self.entries[0])
-                    self.updateEntries(book)
+                    if book != {}:
+                        self.updateEntries(book)
                     self.refresh()
                 elif self.bt==0:
                     return {}

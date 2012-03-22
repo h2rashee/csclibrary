@@ -1,4 +1,4 @@
-from urllib2 import urlopen
+from urllib2 import urlopen,URLError
 from json import load,dumps
 
 """ Library Book Type Description:
@@ -29,7 +29,10 @@ Keys:
 # look up data from openlibrary.org using isbn
 def openLibrary(ISBN):
     isbn = str(ISBN)
-    jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"+isbn)
+    try:
+        jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"+isbn, timeout=3)
+    except URLError:
+        return {}
     openBook = load(jsondata)
     if "ISBN:"+isbn not in openBook:
         return {'isbn':isbn,'title':'Book not found'}
