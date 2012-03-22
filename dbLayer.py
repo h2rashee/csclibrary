@@ -2,6 +2,8 @@ import sqlite3
 
 dbFile = 'sqLibrary.db'
 bookTable = 'books'
+bookRemovedTable='books_deleted'
+bookCategoryTable='book_categories'
 
 bookTableCreation = '''
 CREATE TABLE IF NOT EXISTS books
@@ -15,6 +17,15 @@ CREATE TABLE IF NOT EXISTS books_deleted
      isbn, lccn, title, subtitle, authors, edition, 
      publisher, publish_year, publish_month, publish_location, 
      pages, pagination, weight, last_updated);
+
+CREATE TABLE IF NOT EXISTS categories
+    (cat_id INTEGER PRIMARY KEY, category STRING);
+
+CREATE TABLE IF NOT EXISTS book_categories
+    (id INTEGER, cat_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS book_deleted_categories
+    (id INTEGER, cat_id INTEGER);
 '''
 
 columns = ['id', 'isbn', 'lccn',
@@ -45,6 +56,16 @@ BEGIN
                    pages, pagination, weight, last_updated
                    FROM books
                    WHERE rowid = old.rowid;
+END;
+
+CREATE TRIGGER IF NOT EXISTS insert_book_category_time AFTER INSERT ON book_categories
+BEGIN
+    UPDATE books SET last_updated = DATETIME('NOW') WHERE id = new.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS delete_book_category_time AFTER DELETE ON book_categories
+BEGIN
+    UPDATE books SET last_updated = DATETIME('NOW') WHERE id = old.id;
 END;
 '''
 
@@ -98,6 +119,23 @@ def getBooks():
     c.close()
     return books
 
+def getRemovedBooks():
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "SELECT * FROM "+bookRemovedTable+";"
+    c.execute(query)
+    books = []
+    for b in c:
+        book = {}
+        i = 0
+        for k in columns:
+            if b[i]!=None:
+                book[k]=b[i]
+            i+=1
+        books.append(book)
+    c.close()
+    return books
+
 def getBookByID(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -113,14 +151,26 @@ def getBookByID(bookid):
     c.close()
     return book
 
-
+# removes book from catalogue
 def removeBook(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     query = "DELETE FROM " +bookTable+ " WHERE id = "+str(bookid)+";"
     c.execute(query)
+    query = "DELETE FROM " +bookCategoryTable+ " WHERE id = "+str(bookid)+";"
+    c.execute(query)
     conn.commit()
     c.close()
+
+# fully deletes book from removedBooks table
+def deleteBook(bookid):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "DELETE FROM " +bookRemovedTable+ " WHERE id = "+str(bookid)+";"
+    c.execute(query)
+    conn.commit()
+    c.close()
+
 
 def createBooksTable():
     conn = sqlite3.connect(dbFile)
