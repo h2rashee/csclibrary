@@ -4,6 +4,7 @@ dbFile = 'sqLibrary.db'
 bookTable = 'books'
 bookRemovedTable='books_deleted'
 bookCategoryTable='book_categories'
+categoryTable = 'categories'
 
 bookTableCreation = '''
 CREATE TABLE IF NOT EXISTS books
@@ -151,6 +152,7 @@ def getBookByID(bookid):
     c.close()
     return book
 
+
 # removes book from catalogue
 def removeBook(bookid):
     conn = sqlite3.connect(dbFile)
@@ -171,7 +173,30 @@ def deleteBook(bookid):
     conn.commit()
     c.close()
 
+#########################################
+# Category related functions
+########################################
+def getCategories():
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "SELECT category FROM "+categoryTable+";"
+    c.execute(query)
+    cats = []
+    for category in c:
+        cats.append(category[0])
+    c.close()
+    return cats
 
+def addCategory(cat):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)");"
+    c.execte(query)
+    c.close()
+
+#########################################
+# Database initialization
+#########################################
 def createBooksTable():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -185,6 +210,7 @@ def createTriggers():
     c.executescript(bookTriggerCreation)
     conn.commit()
     c.close()
+
 
 createBooksTable()
 createTriggers()
