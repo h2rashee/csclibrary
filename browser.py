@@ -105,11 +105,11 @@ class browserWindow:
             ch = self.w.getch()
 
     def handleInput(self,ch):
-        if ch == curses.KEY_UP:
+        if ch == curses.KEY_UP or ch == 107 or ch == 16:
             if self.hl == self.topline:
                 self.scroll(-self.pageSize/2-1)
             self.mvHighlight(-1)
-        elif ch == curses.KEY_DOWN:
+        elif ch == curses.KEY_DOWN or ch == 106 or ch == 14:
             if self.hl == self.topline+self.pageSize-1:
                 self.scroll(+self.pageSize/2+1)
             self.mvHighlight(+1)
@@ -166,9 +166,10 @@ class bookBrowser(browserWindow):
             self.viewSelection(book)
             self.refresh()
 
-def categoryBrowser():
+class categoryBrowser(browserWindow):
     columnDefs = [('ID',0,3),
                   ('Category',100,None)]
+
 
     def refreshCategories(self):
         self.entries = []

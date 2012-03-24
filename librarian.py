@@ -40,14 +40,14 @@ def menu(w, items):
     w.refresh()
     ch=w.getch()
     while (ch!=113 and ch!=27): # leave on q or ESC
-        if ch==curses.KEY_UP:
+        if ch==curses.KEY_UP or ch==107 or ch==16:
             if highlight!=0:
                 w.chgat(highlight,0, 0)
                 highlight -= 1
                 while(items[highlight][0]==""):
                     highlight -=1
                 w.chgat(highlight,0, curses.A_REVERSE)
-        if ch==curses.KEY_DOWN:
+        if ch==curses.KEY_DOWN or ch==106 or ch==14:
             if highlight!=len(items)-1:
                 w.chgat(highlight,0, 0)
                 highlight += 1
@@ -94,7 +94,6 @@ def addForm():
     if len(book)!=0:
         db.addBook(book)
 
-
 def updateMenu():
     w=curses.newwin(1,50,10,10)
     w.addstr("I will be used to update or modify book records")
@@ -109,6 +108,17 @@ def browseMenu():
     (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
     b = browser.bookBrowser(w)
+    b.refreshBooks()
+    hb.commands=browser_commands
+    hb.refresh()
+    b.eventLoop()
+    b.clear()
+
+def catMenu():
+    (my,mx)=stdscr.getmaxyx()
+    w=curses.newwin(10,40,(my-10)/2,(mx-40)/2)
+    b = browser.categoryBrowser(w)
+    b.refreshCategories()
     hb.commands=browser_commands
     hb.refresh()
     b.eventLoop()
@@ -117,7 +127,7 @@ def browseMenu():
 
 m = [("Browse Library", browseMenu),
      ("Add Book or other item", addForm),
-     ("Modify/Update record", updateMenu),
+     ("View the categories", catMenu),
      ("Remove book from catalogue", deleteMenu),
      ("",exit),
      ("Exit", exit)]
