@@ -54,7 +54,7 @@ class browserWindow:
     def displayHeader(self):
         cursor = 0
         for header,width in self.columns:
-            self.w.addnstr(0,cursor,header,width)
+            self.w.addnstr(0,cursor,header+" "*width,width)
             self.w.addstr(1,cursor,"-"*width)
             cursor += width+1
 
@@ -167,8 +167,7 @@ class bookBrowser(browserWindow):
             self.refresh()
 
 class categoryBrowser(browserWindow):
-    columnDefs = [('ID',0,3),
-                  ('Category',100,None)]
+    columnDefs = [('Category',100,None)]
 
 
     def refreshCategories(self):

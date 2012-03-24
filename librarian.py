@@ -117,12 +117,13 @@ def browseMenu():
 def catMenu():
     (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(10,40,(my-10)/2,(mx-40)/2)
-    b = browser.categoryBrowser(w)
-    b.refreshCategories()
+    c = browser.categoryBrowser(w)
+    c.refreshCategories()
+    c.sortByColumn('category')
     hb.commands=browser_commands
     hb.refresh()
-    b.eventLoop()
-    b.clear()
+    c.eventLoop()
+    c.clear()
 
 
 m = [("Browse Library", browseMenu),
