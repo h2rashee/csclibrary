@@ -3,7 +3,7 @@
 import curses
 import dbLayer as db
 import browser
-import bookForm
+import form
 import helpBar
 
 import bookData
@@ -85,7 +85,7 @@ def addForm():
     (my,mx)=stdscr.getmaxyx()
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)/2,(mx-c)/2)
-    bf = bookForm.bookForm(w)
+    bf = form.bookForm(w)
     bf.lookup=bookData.openLibrary
     bf.caption='Add a Book'
     bf.blabel = 'Add'

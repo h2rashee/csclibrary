@@ -1,6 +1,6 @@
 import curses
 import dbLayer as db
-from bookForm import bookForm
+from form import bookForm
 
 class browserWindow:
     hl=0

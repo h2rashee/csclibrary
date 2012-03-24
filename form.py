@@ -1,6 +1,6 @@
 import curses
 
-class bookForm:
+class formWindow:
     mx = my = 0
     hl = 0
     bt = -1
@@ -9,17 +9,10 @@ class bookForm:
     left = 0
     top = 2
     row = 2
-    caption = "Add a Book"
-    blabel = "Add"
-    labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
-              "Publisher", "Publish Date", "Publish Year", "Publish Month", "Publish location",
-              "Pages", "Pagination", "Weight"]
+    caption = "Form"
+    blabel = "Done"
+    labels = ["label1"]
     entries = []
-
-    # redefineable functions lookup is called when 'enter' is pressed on ISBN
-    # and returns the looked-up book. Default returns nothing
-    def lookup(self,isbn):
-        return {'isbn':isbn}
 
     def clear(self):
         self.w.erase()
@@ -125,7 +118,7 @@ class bookForm:
         self.drawRow(self.hl)
         self.highlight()
 
-    def returnBook(self):
+    def returnValues(self):
         book = {}
         for k,v in zip(self.labels, self.entries):
             if v!="" and k.lower()!="publish date":
@@ -140,53 +133,79 @@ class bookForm:
 
         ch = self.w.getch()
         while ch != 27:
-            if ch==curses.KEY_UP:
-                self.mvHighlight(-1)
-            elif ch==curses.KEY_PPAGE:
-                self.mvHighlight(-len(self.labels))
-            elif ch==curses.KEY_DOWN:
-                self.mvHighlight(+1)
-            elif ch==curses.KEY_NPAGE:
-                self.mvHighlight(+len(self.labels))
-
-            elif ch==curses.KEY_LEFT:
-                if self.bt==-1:
-                    self.mvCursor(-1)
-                else:
-                    self.bt=0
-            elif ch==curses.KEY_HOME:
-                if self.bt==-1:
-                    self.mvCursor(-len(self.entries[self.hl]))
-            elif ch==curses.KEY_RIGHT:
-                if self.bt==-1:
-                    self.mvCursor(+1)
-                else:
-                    self.bt=1
-            elif ch==curses.KEY_END:
-                if self.bt==-1:
-                    self.mvCursor(+len(self.entries[self.hl]))
-
-            elif ch>=32 and ch<=126:
-                if self.bt==-1:
-                    self.insert(curses.keyname(ch))
-            elif ch==curses.KEY_BACKSPACE:
-                if self.bt==-1:
-                    self.backspace()
-            elif ch==curses.KEY_DC:
-                if self.bt==-1:
-                    self.delete()
-            
-            elif ch==10 or ch==curses.KEY_ENTER:
-                if self.hl==0:
-                    book = self.lookup(self.entries[0])
-                    if book != {}:
-                        self.updateEntries(book)
-                    self.refresh()
-                elif self.bt==0:
+            self.handleInput(ch)
+            if ch==10 or ch==curses.KEY_ENTER:
+                if self.bt==0:
                     return {}
                 elif self.bt==1:
-                    return self.returnBook()
+                    return self.returnValues()
                 self.mvHighlight(+1)
             self.w.refresh()
             ch = self.w.getch()
+        curses.curs_set(0)
+        return {}
+
+
+    def handleInput(self,ch):
+        if ch==curses.KEY_UP:
+            self.mvHighlight(-1)
+        elif ch==curses.KEY_PPAGE:
+            self.mvHighlight(-len(self.labels))
+        elif ch==curses.KEY_DOWN:
+            self.mvHighlight(+1)
+        elif ch==curses.KEY_NPAGE:
+            self.mvHighlight(+len(self.labels))
+
+        elif ch==curses.KEY_LEFT:
+            if self.bt==-1:
+                self.mvCursor(-1)
+            else:
+                self.bt=0
+        elif ch==curses.KEY_HOME:
+            if self.bt==-1:
+                self.mvCursor(-len(self.entries[self.hl]))
+        elif ch==curses.KEY_RIGHT:
+            if self.bt==-1:
+                self.mvCursor(+1)
+            else:
+                self.bt=1
+        elif ch==curses.KEY_END:
+            if self.bt==-1:
+                self.mvCursor(+len(self.entries[self.hl]))
+
+        elif ch>=32 and ch<=126:
+            if self.bt==-1:
+                self.insert(curses.keyname(ch))
+        elif ch==curses.KEY_BACKSPACE:
+            if self.bt==-1:
+                self.backspace()
+        elif ch==curses.KEY_DC:
+            if self.bt==-1:
+                self.delete()
         
+        
+
+class bookForm(formWindow):
+    caption = "Add a Book"
+    blabel = "Add"
+    labels = ["ISBN", "LCCN", "Title", "Subtitle", "Authors", "Edition",
+              "Publisher", "Publish Date", "Publish Year", "Publish Month", "Publish location",
+              "Pages", "Pagination", "Weight"]
+    
+
+    # redefineable functions lookup is called when 'enter' is pressed on ISBN
+    # and returns the looked-up book. Default returns nothing
+    def lookup(self,isbn):
+        return {'isbn':isbn}
+
+    def returnBook(self):
+        return self.returnValues()
+
+    def handleInput(self,ch):
+        if ch==10 or ch==curses.KEY_ENTER:
+            if self.hl==0:
+                book = self.lookup(self.entries[0])
+                if book != {}:
+                    self.updateEntries(book)
+                self.refresh()
+        formWindow.handleInput(self,ch)
