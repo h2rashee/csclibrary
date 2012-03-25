@@ -1,3 +1,4 @@
+import sys
 import sqlite3
 
 dbFile = 'sqLibrary.db'
@@ -181,6 +182,21 @@ def deleteBook(bookid):
 #########################################
 # Category related functions
 ########################################
+def categorizeBook(bookid, category):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    if isinstance(category,str):
+        query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
+        conn.commit()
+        c.execute(query)
+        query = "SELECT cat_id FROM "+categoryTable+" WHERE category = "+stringify(category)+";"
+        c.execute(query)
+        category = c.fetchone()
+    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES ("+str(bookid)+", "+str(category)+");"
+    conn.commit()
+    c.close()
+        
+
 def getCategories():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -196,7 +212,9 @@ def addCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
-    c.execte(query)
+    print >>sys.stderr, query
+    c.execute(query)
+    conn.commit()
     c.close()
 
 #########################################

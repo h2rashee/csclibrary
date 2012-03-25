@@ -1,6 +1,7 @@
+import sys
 import curses
 import dbLayer as db
-from form import bookForm
+from form import bookForm,categoryForm
 
 class browserWindow:
     hl=0
@@ -175,7 +176,22 @@ class categoryBrowser(browserWindow):
         cats = db.getCategories()
         for c in cats:
             self.entries.append({'category':c})
+        self.sortByColumn('category')
+
+    def addCategory(self):
+        w = curses.newwin(1,1,10,10)
+        cf = categoryForm(w)
+        cats = cf.eventLoop()
+        print >> sys.stderr, cats
+        for c in cats:
+            print >> sys.stderr, "adding "+str(c)
+            db.addCategory(c)
+        cf.clear()
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
+        if ch==97:
+            self.addCategory()
+            self.refreshCategories()
+            self.refresh()
 

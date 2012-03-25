@@ -209,3 +209,11 @@ class bookForm(formWindow):
                     self.updateEntries(book)
                 self.refresh()
         formWindow.handleInput(self,ch)
+
+class categoryForm(formWindow):
+    caption = "Add a Category"
+    blabel = "Add"
+    labels = ["Category"]
+
+    def returnValues(self):
+        return self.entries

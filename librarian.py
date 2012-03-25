@@ -83,9 +83,9 @@ def redrawMenu(w,items,highlight):
 def addForm():
     w=curses.newwin(1,1)
     (my,mx)=stdscr.getmaxyx()
+    bf = form.bookForm(w)
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)/2,(mx-c)/2)
-    bf = form.bookForm(w)
     bf.lookup=bookData.openLibrary
     bf.caption='Add a Book'
     bf.blabel = 'Add'
