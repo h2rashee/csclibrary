@@ -25,9 +25,6 @@ CREATE TABLE IF NOT EXISTS categories
 
 CREATE TABLE IF NOT EXISTS book_categories
     (id INTEGER, cat_id INTEGER);
-
-CREATE TABLE IF NOT EXISTS book_deleted_categories
-    (id INTEGER, cat_id INTEGER);
 '''
 
 columns = ['id', 'isbn', 'lccn',
@@ -170,12 +167,34 @@ def removeBook(bookid):
     conn.commit()
     c.close()
 
+def removeBooks(bookids):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query1 = "DELETE FROM " +bookTable+ " WHERE id = ?;"
+    query2 = "DELETE FROM " +bookCategoryTable+ " WHERE id = ?;"
+    for book in bookids:
+        bid=(book,)
+        c.execute(query1, bid)
+        c.execute(query2, bid)
+    conn.commit()
+    c.close()
+
 # fully deletes book from removedBooks table
 def deleteBook(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     query = "DELETE FROM " +bookRemovedTable+ " WHERE id = "+str(bookid)+";"
     c.execute(query)
+    conn.commit()
+    c.close()
+
+def deleteBooks(bookids):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "DELETE FROM " +bookRemovedTable+ " WHERE id = ?;"
+    for book in bookids:
+        bid=(book,)
+        c.execute(query, bid)
     conn.commit()
     c.close()
 
