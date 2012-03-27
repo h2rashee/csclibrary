@@ -183,10 +183,7 @@ class categoryBrowser(browserWindow):
 
 
     def refreshCategories(self):
-        self.entries = []
-        cats = db.getCategories()
-        for c in cats:
-            self.entries.append({'category':c})
+        self.entries = db.getCategories()
         self.sortByColumn('category')
         self.selected = map(lambda x:False, self.entries)
 

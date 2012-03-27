@@ -182,17 +182,10 @@ def deleteBook(bookid):
 #########################################
 # Category related functions
 ########################################
-def categorizeBook(bookid, category):
+def categorizeBook(bookid, cat_id):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    if isinstance(category,str):
-        query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
-        conn.commit()
-        c.execute(query)
-        query = "SELECT cat_id FROM "+categoryTable+" WHERE category = "+stringify(category)+";"
-        c.execute(query)
-        category = c.fetchone()
-    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES ("+str(bookid)+", "+str(category)+");"
+    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES ("+str(bookid)+", "+str(cat_id)+");"
     conn.commit()
     c.close()
         
@@ -200,11 +193,11 @@ def categorizeBook(bookid, category):
 def getCategories():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "SELECT category FROM "+categoryTable+";"
+    query = "SELECT cat_id, category FROM "+categoryTable+";"
     c.execute(query)
     cats = []
-    for category in c:
-        cats.append(category[0])
+    for cat_id,cat in c:
+        cats.append({'id':cat_id, 'category':cat})
     c.close()
     return cats
 
