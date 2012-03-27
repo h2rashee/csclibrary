@@ -197,11 +197,16 @@ class categoryBrowser(browserWindow):
         w = curses.newwin(1,1,10,10)
         cf = categoryForm(w,self.hb)
         cats = cf.eventLoop()
-        print >> sys.stderr, cats
         for c in cats:
-            print >> sys.stderr, "adding "+str(c)
             db.addCategory(c)
         cf.clear()
+
+    def delSelected(self):
+        categories = []
+        for sel,cat in zip(self.selected, self.entries):
+            if sel:
+                categories.append(cat)
+        db.deleteCategories(categories)
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
@@ -209,4 +214,14 @@ class categoryBrowser(browserWindow):
             self.addCategory()
             self.refreshCategories()
             self.refresh()
+        if ch==100:
+            count=0
+            for s in self.selected[0:self.hl-1]:
+                if s:
+                    count+=1
+            self.delSelected()
+            self.refreshCategories()
+            self.refresh()
+            self.scroll(-count)
+            self.mvHighlight(-count)
 

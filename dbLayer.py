@@ -224,8 +224,18 @@ def addCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
-    print >>sys.stderr, query
     c.execute(query)
+    conn.commit()
+    c.close()
+
+def deleteCategories(cats):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query1 = "DELETE FROM " +categoryTable+ " WHERE cat_id = :id;"
+    query2 = "DELETE FROM " +bookCategoryTable+ " WHERE cat_id = :id;"
+    for cat in cats:
+        c.execute(query1, cat)
+        c.execute(query2, cat)
     conn.commit()
     c.close()
 
