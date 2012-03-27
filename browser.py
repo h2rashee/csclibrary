@@ -166,6 +166,13 @@ class bookBrowser(browserWindow):
         bf.blabel='done'
         bf.eventLoop()
         bf.clear()
+    
+    def delSelected(self):
+        books = []
+        for sel,book in zip(self.selected, self.entries):
+            if sel:
+                books.append(book)
+        db.removeBooks(books)
 
     def refreshBooks(self):
         self.entries = db.getBooks()
@@ -182,6 +189,16 @@ class bookBrowser(browserWindow):
             book = self.entries[self.hl]
             self.viewSelection(book)
             self.refresh()
+        if ch==100:
+            count=0
+            for s in self.selected[0:self.hl-1]:
+                if s:
+                    count+=1
+            self.delSelected()
+            self.refreshBooks()
+            self.refresh()
+            self.scroll(-count)
+            self.mvHighlight(-count)
 
 class categoryBrowser(browserWindow):
     columnDefs = [('Category',100,None)]

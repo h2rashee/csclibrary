@@ -167,15 +167,14 @@ def removeBook(bookid):
     conn.commit()
     c.close()
 
-def removeBooks(bookids):
+def removeBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query1 = "DELETE FROM " +bookTable+ " WHERE id = ?;"
-    query2 = "DELETE FROM " +bookCategoryTable+ " WHERE id = ?;"
-    for book in bookids:
-        bid=(book,)
-        c.execute(query1, bid)
-        c.execute(query2, bid)
+    query1 = "DELETE FROM " +bookTable+ " WHERE id = :id;"
+    query2 = "DELETE FROM " +bookCategoryTable+ " WHERE id = :id;"
+    for book in books:
+        c.execute(query1, book)
+        c.execute(query2, book)
     conn.commit()
     c.close()
 
@@ -188,13 +187,12 @@ def deleteBook(bookid):
     conn.commit()
     c.close()
 
-def deleteBooks(bookids):
+def deleteBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "DELETE FROM " +bookRemovedTable+ " WHERE id = ?;"
-    for book in bookids:
-        bid=(book,)
-        c.execute(query, bid)
+    query = "DELETE FROM " +bookRemovedTable+ " WHERE id = :id;"
+    for book in books:
+        c.execute(query, book)
     conn.commit()
     c.close()
 
