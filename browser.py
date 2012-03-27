@@ -5,8 +5,9 @@ from form import bookForm,categoryForm
 
 class browserWindow:
     hl=0
-    entries = []
     topline = 0
+    entries = []
+    selected = []
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
@@ -22,6 +23,7 @@ class browserWindow:
 
     def sortByColumn(self, col):
         self.entries.sort() # key=dict.get(col))
+        self.selected = map(lambda x: False, self.selected)
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
@@ -53,7 +55,7 @@ class browserWindow:
         self.highlight()
 
     def displayHeader(self):
-        cursor = 0
+        cursor = 1
         for header,width in self.columns:
             self.w.addnstr(0,cursor,header+" "*width,width)
             self.w.addstr(1,cursor,"-"*width)
@@ -62,7 +64,11 @@ class browserWindow:
     def displayRow(self,row):
         if self.topline+row < len(self.entries):
             entry = self.entries[self.topline+row]
-            cursor = 0
+            cursor = 1
+            if self.selected[self.topline+row]:
+                self.w.addstr(row+2, 0, "*")
+            else:
+                self.w.addstr(row+2, 0, " ")
             for k,width in self.columns:
                 if k.lower() in entry:
                     self.w.addnstr(row+2,cursor,str(entry[k.lower()])+" "*width,width)
@@ -120,6 +126,10 @@ class browserWindow:
         elif ch == curses.KEY_NPAGE:
             self.scroll(+self.pageSize)
             self.mvHighlight(+self.pageSize)
+        elif ch == 32:
+            self.selected[self.hl] = not self.selected[self.hl]
+            self.displayRow(self.hl-self.topline)
+            self.highlight()
 
 
 
@@ -154,6 +164,7 @@ class bookBrowser(browserWindow):
 
     def refreshBooks(self):
         self.entries = db.getBooks()
+        self.selected = map(lambda x:False, self.entries)
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
@@ -177,6 +188,7 @@ class categoryBrowser(browserWindow):
         for c in cats:
             self.entries.append({'category':c})
         self.sortByColumn('category')
+        self.selected = map(lambda x:False, self.entries)
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
