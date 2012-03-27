@@ -8,6 +8,7 @@ class browserWindow:
     topline = 0
     entries = []
     selected = []
+    commands = [(' q', 'quit')]
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
@@ -17,8 +18,9 @@ class browserWindow:
         self.w.erase()
         self.w.refresh()
 
-    def __init__(self,window):
+    def __init__(self,window,helpbar):
         self.w = window
+        self.hb = helpbar
         self.updateGeometry()
 
     def sortByColumn(self, col):
@@ -48,6 +50,8 @@ class browserWindow:
         self.columns=cols
 
     def refresh(self):
+        self.hb.commands = self.commands
+        self.hb.refresh()
         self.displayHeader()
         for r in range(0,self.pageSize):
             self.displayRow(r)
@@ -138,15 +142,17 @@ class bookBrowser(browserWindow):
                   ('ISBN',0,13),
                   ('Authors',30,None),
                   ('Title',60,None)]
+    
+    commands = [(' u', 'update'), (' d', 'delete selected'), (' q', 'quit')]
+    
     # redefinable functions
     def updateSelection(self,book):
         bookid = book['id']
         
         w=curses.newwin(1,1,20,20)
-        bf=bookForm(w)
+        bf=bookForm(w,self.hb,book)
         bf.caption='Update Book '+str(bookid)
         bf.blabel='update'
-        bf.updateEntries(book)
         newbook = bf.eventLoop()
         if len(newbook)!=0:
             db.updateBook(newbook,bookid)
@@ -155,10 +161,9 @@ class bookBrowser(browserWindow):
     def viewSelection(self,book):
         bookid = book['id']
         w=curses.newwin(1,1,20,20)
-        bf = bookForm(w)
+        bf = bookForm(w,self.hb,book)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
-        bf.updateEntries(book)
         bf.eventLoop()
         bf.clear()
 
@@ -170,7 +175,7 @@ class bookBrowser(browserWindow):
         browserWindow.handleInput(self,ch)
         if ch == 117: #update on 'u'
             book = self.entries[self.hl]
-            self.updateSelection(entries)
+            self.updateSelection(book)
             self.entries[self.hl]=db.getBookByID(book['id'])
             self.refresh()
         elif ch == 10:
@@ -180,6 +185,7 @@ class bookBrowser(browserWindow):
 
 class categoryBrowser(browserWindow):
     columnDefs = [('Category',100,None)]
+    commands = [(' a', 'add category'), (' d', 'delete selected'), (' q', 'quit')]
 
 
     def refreshCategories(self):
@@ -189,7 +195,7 @@ class categoryBrowser(browserWindow):
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
-        cf = categoryForm(w)
+        cf = categoryForm(w,self.hb)
         cats = cf.eventLoop()
         print >> sys.stderr, cats
         for c in cats:

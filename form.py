@@ -14,13 +14,16 @@ class formWindow:
     labels = ["label1"]
     entries = []
 
+    commands = [('pU', 'top'),('pD', 'bottom'),('Es', 'cancel')]
+
     def clear(self):
         self.w.erase()
         self.w.refresh()
 
-    def __init__(self,window,book={}):
+    def __init__(self,window,helpbar,book={}):
         self.w = window
         self.w.resize(len(self.labels)+6,50)
+        self.hb = helpbar
         self.updateEntries(book)
         self.updateGeometry()
 
@@ -45,6 +48,8 @@ class formWindow:
                 self.entries.append("")
 
     def refresh(self):
+        self.hb.commands = self.commands
+        self.hb.refresh()
         self.updateGeometry()
         self.w.box()
         self.w.addstr(0,(self.mx-len(self.caption))/2,self.caption)

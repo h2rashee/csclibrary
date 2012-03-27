@@ -13,7 +13,6 @@ stdscr=0
 hb=0
 
 menu_commands = [(' q','quit')]
-browser_commands = [(' u','update'), (' d','delete'), (' q','quit')]
 
 def menutest(s, l):
     global stdscr
@@ -83,7 +82,7 @@ def redrawMenu(w,items,highlight):
 def addForm():
     w=curses.newwin(1,1)
     (my,mx)=stdscr.getmaxyx()
-    bf = form.bookForm(w)
+    bf = form.bookForm(w,hb)
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)/2,(mx-c)/2)
     bf.lookup=bookData.openLibrary
@@ -107,21 +106,17 @@ def deleteMenu():
 def browseMenu():
     (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
-    b = browser.bookBrowser(w)
+    b = browser.bookBrowser(w,hb)
     b.refreshBooks()
-    hb.commands=browser_commands
-    hb.refresh()
     b.eventLoop()
     b.clear()
 
 def catMenu():
     (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(10,40,(my-10)/2,(mx-40)/2)
-    c = browser.categoryBrowser(w)
+    c = browser.categoryBrowser(w,hb)
     c.refreshCategories()
     c.sortByColumn('category')
-    hb.commands=browser_commands
-    hb.refresh()
     c.eventLoop()
     c.clear()
 
