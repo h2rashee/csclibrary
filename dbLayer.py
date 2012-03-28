@@ -199,13 +199,36 @@ def deleteBooks(books):
 #########################################
 # Category related functions
 ########################################
-def categorizeBook(bookid, cat_id):
+def getBookCategories(book):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES ("+str(bookid)+", "+str(cat_id)+");"
+    query = "SELECT id,cat_id,category FROM "+bookCategoryTable+" JOIN "+categoryTable+" USING (cat_id) WHERE id = :id ;"
+    c.execute(query,book)
+    cats = []
+    for book_id,cat_id,cat_name in c:
+        cats.append({'id':book_id, 'cat_id':cat_id, 'category':cat_name})
+    c.close()
+    return cats
+
+def categorizeBook(book, cats):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES (?, ?);"
+    for cat in cats:
+        args = (book['id'],cat['id'])
+        c.execute(query,args)
     conn.commit()
     c.close()
-        
+
+def uncategorizeBook(book, cats):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "DELETE FROM "+bookCategoryTable+" WHERE (id = ? AND cat_id = ?);"
+    for cat in cats:
+        args = (book['id'],cat['id'])
+        c.execute(query,args)
+    conn.commit()
+    c.close()
 
 def getCategories():
     conn = sqlite3.connect(dbFile)

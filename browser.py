@@ -24,7 +24,7 @@ class browserWindow:
         self.updateGeometry()
 
     def sortByColumn(self, col):
-        self.entries.sort() # key=dict.get(col))
+        self.entries.sort(key=lambda k: k.get(col)) # key=dict.get(col))
         self.selected = map(lambda x: False, self.selected)
 
     def updateGeometry(self):
@@ -111,7 +111,9 @@ class browserWindow:
 
         ch = self.w.getch()
         while ch != 27 and ch != 113:
-            self.handleInput(ch)
+            ch = self.handleInput(ch)
+            if ch==113:
+                return {}
             self.w.refresh()
             ch = self.w.getch()
 
@@ -166,6 +168,14 @@ class bookBrowser(browserWindow):
         bf.blabel='done'
         bf.eventLoop()
         bf.clear()
+
+    def categorizeSelection(self,book):
+        w = curses.newwin(40,20,20,20)
+        cs = categorySelector(w,self.hb)
+        cs.book = book
+        cs.refreshCategories()
+        cs.eventLoop()
+        cs.clear()
     
     def delSelected(self):
         books = []
@@ -189,6 +199,10 @@ class bookBrowser(browserWindow):
             book = self.entries[self.hl]
             self.viewSelection(book)
             self.refresh()
+        elif ch == 99:
+            book = self.entries[self.hl]
+            self.categorizeSelection(book)
+            self.refresh()
         if ch==100:
             count=0
             for s in self.selected[0:self.hl-1]:
@@ -199,6 +213,7 @@ class bookBrowser(browserWindow):
             self.refresh()
             self.scroll(-count)
             self.mvHighlight(-count)
+        return ch
 
 class categoryBrowser(browserWindow):
     columnDefs = [('Category',100,None)]
@@ -241,4 +256,66 @@ class categoryBrowser(browserWindow):
             self.refresh()
             self.scroll(-count)
             self.mvHighlight(-count)
+        return ch
+
+class categorySelector(browserWindow):
+    columnDefs = [('Category',100,None)]
+    commands = [(' a', 'add category'), (' c', 'commit'), (' q', 'quit')]
+    book = {'id':''}
+    original=[]
+
+
+    def refreshCategories(self):
+        self.entries = db.getCategories()
+        self.sortByColumn('category')
+        self.refreshSelected()
+
+    def refreshSelected(self):
+        self.original = map(lambda x:False, self.entries)
+        cats = db.getBookCategories(self.book)
+        cats.sort()
+        cats.sort(key=lambda k: k.get('category')) # key=dict.get(col))
+        i = 0
+        j = 0
+        for cat in self.entries:
+            if i == len(cats):
+                break
+            if cat['id']==cats[i]['cat_id']:
+                self.original[j] = True;
+                i+=1
+            j+=1
+        self.selected = self.original[:]
+
+
+    def addCategory(self):
+        w = curses.newwin(1,1,10,10)
+        cf = categoryForm(w,self.hb)
+        cats = cf.eventLoop()
+        for c in cats:
+            db.addCategory(c)
+        cf.clear()
+
+    def updateCategories(self):
+        # first removed the deselected ones
+        uncats = []
+        cats = []
+        for old, new, category in zip(self.original, self.selected, self.entries):
+            if old and (not new):
+                uncats.append(category)
+            if (not old) and new:
+                cats.append(category)
+        db.uncategorizeBook(self.book, uncats)
+        # add the newly selected categories
+        db.categorizeBook(self.book, cats)
+
+
+    def handleInput(self,ch):
+        browserWindow.handleInput(self,ch)
+        if ch==97:
+            self.addCategory()
+            self.refreshCategories()
+            self.refresh()
+        if ch==99:
+            self.updateCategories()
+            return 113
 
