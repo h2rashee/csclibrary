@@ -9,6 +9,7 @@ class browserWindow:
     entries = []
     selected = []
     commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), (' q', 'quit')]
+    cs = []
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
@@ -21,6 +22,7 @@ class browserWindow:
         self.w = window
         self.hb = helpbar
         self.updateGeometry()
+        self.commands = self.cs+self.commands
 
     def sortByColumn(self, col):
         self.entries.sort(key=lambda k: k.get(col)) # key=dict.get(col))
@@ -233,7 +235,7 @@ class bookBrowser(browserWindow):
                   ('Authors',30,None),
                   ('Title',60,None)]
     
-    commands = [(' u', 'update'), (' d', 'delete selected'), (' q', 'quit')]
+    cs = [(' u', 'update'), (' d', 'delete selected')]
     
     # redefinable functions
     def updateSelection(self,book):
@@ -308,7 +310,7 @@ class bookBrowser(browserWindow):
 
 class categoryBrowser(browserWindow):
     columnDefs = [('Category',100,None)]
-    commands = [(' a', 'add category'), (' d', 'delete selected'), (' q', 'quit')]
+    cs = [(' a', 'add category'), (' d', 'delete selected')]
 
 
     def refreshCategories(self):
@@ -352,7 +354,7 @@ class categoryBrowser(browserWindow):
 
 class categorySelector(browserWindow):
     columnDefs = [('Category',100,None)]
-    commands = [(' a', 'add category'), (' c', 'commit'), (' q', 'quit')]
+    cs = [(' a', 'add category'), (' c', 'commit')]
     book = {'id':''}
     original=[]
 

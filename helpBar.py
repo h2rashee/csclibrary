@@ -5,7 +5,7 @@ class helpBar:
     commands = []
     mx=my=0
     x=y=0
-    colWidth = 10
+    colWidth = 25
     numCols=1
 
     def __init__(self, window):
@@ -18,8 +18,9 @@ class helpBar:
         numRows = len(self.commands)/self.numCols +1
         self.y += self.my - numRows
         self.my = numRows
-        self.w.mvwin(self.y,self.x)
+        self.w.mvwin(0,0)
         self.w.resize(self.my,self.mx)
+        self.w.mvwin(self.y,self.x)
 
     def refresh(self):
         self.clear()
