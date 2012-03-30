@@ -12,11 +12,7 @@ class browserWindow:
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
-
-
-    def clear(self):
-        self.w.erase()
-        self.w.refresh()
+    cx = cy = 0
 
     def __init__(self,window,helpbar):
         self.w = window
@@ -29,6 +25,9 @@ class browserWindow:
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
+        (y,x) = self.w.getbegyx()
+        self.cx = x + self.mx/2
+        self.cy = y + self.my/2
         self.pageSize = self.my-3
         self.calcColWidths()
 
@@ -57,6 +56,15 @@ class browserWindow:
             self.displayRow(r)
         self.w.refresh()
         self.highlight()
+
+    def clear(self):
+        self.w.erase()
+        self.w.refresh()
+
+    def centreChild(self,child):
+        (y,x)=child.getmaxyx()
+        child.mvwin(self.cy-y/2,self.cx-x/2)
+
 
     def displayHeader(self):
         cursor = 1
@@ -151,8 +159,9 @@ class bookBrowser(browserWindow):
     def updateSelection(self,book):
         bookid = book['id']
         
-        w=curses.newwin(1,1,20,20)
+        w=curses.newwin(1,1)
         bf=bookForm(w,self.hb,book)
+        self.centreChild(w)
         bf.caption='Update Book '+str(bookid)
         bf.blabel='update'
         newbook = bf.eventLoop()
@@ -164,6 +173,7 @@ class bookBrowser(browserWindow):
         bookid = book['id']
         w=curses.newwin(1,1,20,20)
         bf = bookForm(w,self.hb,book)
+        self.centreChild(w)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
         bf.eventLoop()
@@ -172,6 +182,7 @@ class bookBrowser(browserWindow):
     def categorizeSelection(self,book):
         w = curses.newwin(40,20,20,20)
         cs = categorySelector(w,self.hb)
+        self.centreChild(w)
         cs.book = book
         cs.refreshCategories()
         cs.eventLoop()
@@ -228,6 +239,7 @@ class categoryBrowser(browserWindow):
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
         cf = categoryForm(w,self.hb)
+        self.centreChild(w)
         cats = cf.eventLoop()
         for c in cats:
             db.addCategory(c)
@@ -290,6 +302,7 @@ class categorySelector(browserWindow):
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
         cf = categoryForm(w,self.hb)
+        self.centreChild(w)
         cats = cf.eventLoop()
         for c in cats:
             db.addCategory(c)

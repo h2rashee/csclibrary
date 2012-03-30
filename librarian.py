@@ -122,9 +122,9 @@ def catMenu():
 
 
 m = [("Browse Library", browseMenu),
-     ("Add Book or other item", addForm),
-     ("View the categories", catMenu),
-     ("Remove book from catalogue", deleteMenu),
+     ("Add Book", addForm),
+     ("Categories", catMenu),
+     ("View Trash", deleteMenu),
      ("",exit),
      ("Exit", exit)]
 curses.wrapper(menutest, m)
