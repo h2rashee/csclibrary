@@ -8,11 +8,14 @@ class browserWindow:
     topline = 0
     entries = []
     selected = []
-    commands = [(' q', 'quit')]
+    commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), (' q', 'quit')]
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
     cx = cy = 0
+    # for searches
+    last_search = ""
+    found_index = 0
 
     def __init__(self,window,helpbar):
         self.w = window
@@ -113,6 +116,57 @@ class browserWindow:
         self.topline = min(self.topline,len(self.entries)-1)
         self.refresh()
 
+    def search(self, string):
+        i = 0
+        found = False
+        for e in self.entries:
+            for k,v in e.items():
+                if str(v).find(string) != -1:
+                    found = True
+            if found:
+                break
+            i += 1;
+        if found:
+            self.last_search = string
+            self.search_index = i
+            return i
+        else:
+            self.search_index = -1
+            return -1
+
+    def findNext(self):
+        if self.last_search == "" or self.search_index == -1:
+            return -1
+        found = False
+        for i in range(self.hl+1,len(self.entries)-1):
+            for k,v in self.entries[i].items():
+                if str(v).find(self.last_search) != -1:
+                    found = True
+            if found:
+                break
+        if found:
+            self.search_index = i
+            return i
+        else:
+            return -1
+
+    def findPrevious(self):
+        if self.last_search == "" or self.search_index == -1:
+            return -1
+        found = False
+        for i in range(self.hl-1, 0, -1):
+            for k,v in self.entries[i].items():
+                if str(v).find(self.last_search) != -1:
+                    found = True
+            if found:
+                break
+        if found:
+            self.search_index = i
+            return i
+        else:
+            return -1
+
+
     def eventLoop(self):
         self.w.keypad(1)
         self.refresh()
@@ -124,6 +178,7 @@ class browserWindow:
                 return {}
             self.w.refresh()
             ch = self.w.getch()
+            self.hb.refresh()
 
     def handleInput(self,ch):
         if ch == curses.KEY_UP or ch == 107 or ch == 16:
@@ -140,6 +195,31 @@ class browserWindow:
         elif ch == curses.KEY_NPAGE:
             self.scroll(+self.pageSize)
             self.mvHighlight(+self.pageSize)
+        elif ch == 47: # forward slash
+            string = self.hb.getSearch()
+            hl = self.search(string)
+            if hl != -1:
+                delta = hl - self.hl
+                self.scroll(delta)
+                self.mvHighlight(delta)
+            else:
+                self.hb.display(string+' not found')
+        elif ch == 110: # n
+            hl = self.findNext()
+            if hl != -1:
+                delta = hl - self.hl
+                self.scroll(delta)
+                self.mvHighlight(delta)
+            else:
+                self.hb.display(self.last_search+' not found')
+        elif ch == 78: # N
+            hl = self.findPrevious()
+            if hl != -1:
+                delta = hl - self.hl
+                self.scroll(delta)
+                self.mvHighlight(delta)
+            else:
+                self.hb.display(self.last_search+' not found')
         elif ch == 32:
             self.selected[self.hl] = not self.selected[self.hl]
             self.displayRow(self.hl-self.topline)
