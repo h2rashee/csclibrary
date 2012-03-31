@@ -123,6 +123,23 @@ def getBooks():
     c.close()
     return books
 
+def getBooksByCategory(cat):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query = "SELECT "+",".join(columns)+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id;"
+    c.execute(query,cat)
+    books = []
+    for b in c:
+        book = {}
+        i = 0
+        for k in columns:
+            if b[i]!=None:
+                book[k]=b[i]
+            i+=1
+        books.append(book)
+    c.close()
+    return books
+
 def getRemovedBooks():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
