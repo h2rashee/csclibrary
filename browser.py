@@ -248,6 +248,13 @@ class trashBrowser(browserWindow):
         bf.eventLoop()
         bf.clear()
 
+    def restoreSelected(self):
+        books = []
+        for sel,book in zip(self.selected, self.entries):
+            if sel:
+                books.append(book)
+        db.restoreBooks(books)
+
     def delSelected(self):
         books = []
         for sel,book in zip(self.selected, self.entries):
@@ -265,7 +272,17 @@ class trashBrowser(browserWindow):
             book = self.entries[self.hl]
             self.viewSelection(book)
             self.refresh()
-        if ch==100:
+        if ch==114: #restore books
+            count=0
+            for s in self.selected[0:self.hl-1]:
+                if s:
+                    count+=1
+            self.restoreSelected()
+            self.refreshBooks()
+            self.refresh()
+            self.scroll(-count)
+            self.mvHighlight(-count)
+        if ch==100: # delete books
             count=0
             for s in self.selected[0:self.hl-1]:
                 if s:

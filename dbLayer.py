@@ -126,7 +126,7 @@ def getBooks():
 def getBooksByCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "SELECT "+",".join(columns)+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id;"
+    query = "SELECT "+",".join(mapt(colify,columns))+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id;"
     c.execute(query,cat)
     books = []
     for b in c:
@@ -192,6 +192,18 @@ def removeBooks(books):
     for book in books:
         c.execute(query1, book)
         c.execute(query2, book)
+    conn.commit()
+    c.close()
+
+# restores trashed books
+def restoreBooks(books):
+    conn = sqlite3.connect(dbFile)
+    c = conn.cursor()
+    query1 =  "INSERT INTO "+bookTable+" ("+",".join(map(colify,columns[1:]))+") SELECT "+",".join(map(colify,columns[1:]))+" FROM "+bookRemovedTable+" WHERE id = :id;"
+    query2 = "DELETE FROM " +bookRemovedTable+ " WHERE id = :id;"
+    for book in books:
+        c.execute(query1,book)
+        c.execute(query2,book)
     conn.commit()
     c.close()
 
