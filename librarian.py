@@ -98,10 +98,13 @@ def updateMenu():
     w.addstr("I will be used to update or modify book records")
     w.refresh()
 
-def deleteMenu():
-    w=curses.newwin(1,50,10,10)
-    w.addstr("I will be used to delete book records")
-    w.refresh()
+def trashMenu():
+    (my,mx)=stdscr.getmaxyx()
+    w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
+    b = browser.trashBrowser(w,hb)
+    b.refreshBooks()
+    b.eventLoop()
+    b.clear()
 
 def browseMenu():
     (my,mx)=stdscr.getmaxyx()
@@ -124,7 +127,7 @@ def catMenu():
 m = [("Browse Library", browseMenu),
      ("Add Book", addForm),
      ("Categories", catMenu),
-     ("View Trash", deleteMenu),
+     ("View Trash", trashMenu),
      ("",exit),
      ("Exit", exit)]
 curses.wrapper(menutest, m)

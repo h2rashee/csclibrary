@@ -229,6 +229,54 @@ class browserWindow:
 
 
 
+class trashBrowser(browserWindow):
+    columnDefs = [('ID',0,3),
+                  ('ISBN',0,13),
+                  ('Authors',30,None),
+                  ('Title',60,None)]
+    
+    cs = [(' r', 'restore selected'), (' d', 'delete selected')]
+    
+    # redefinable functions
+    def viewSelection(self,book):
+        bookid = book['id']
+        w=curses.newwin(1,1,20,20)
+        bf = bookForm(w,self.hb,book)
+        self.centreChild(w)
+        bf.caption='Viewing Book '+str(bookid)
+        bf.blabel='done'
+        bf.eventLoop()
+        bf.clear()
+
+    def delSelected(self):
+        books = []
+        for sel,book in zip(self.selected, self.entries):
+            if sel:
+                books.append(book)
+        db.deleteBooks(books)
+
+    def refreshBooks(self):
+        self.entries = db.getRemovedBooks()
+        self.selected = map(lambda x:False, self.entries)
+
+    def handleInput(self,ch):
+        browserWindow.handleInput(self,ch)
+        if ch == 10:
+            book = self.entries[self.hl]
+            self.viewSelection(book)
+            self.refresh()
+        if ch==100:
+            count=0
+            for s in self.selected[0:self.hl-1]:
+                if s:
+                    count+=1
+            self.delSelected()
+            self.refreshBooks()
+            self.refresh()
+            self.scroll(-count)
+            self.mvHighlight(-count)
+        return ch
+
 class bookBrowser(browserWindow):
     columnDefs = [('ID',0,3),
                   ('ISBN',0,13),
