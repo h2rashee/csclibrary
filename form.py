@@ -165,7 +165,9 @@ class formWindow:
             if self.bt==-1:
                 self.mvCursor(-1)
             else:
+                self.unHighlight()
                 self.bt=0
+                self.highlight()
         elif ch==curses.KEY_HOME:
             if self.bt==-1:
                 self.mvCursor(-len(self.entries[self.hl]))
@@ -173,7 +175,9 @@ class formWindow:
             if self.bt==-1:
                 self.mvCursor(+1)
             else:
+                self.unHighlight()
                 self.bt=1
+                self.highlight()
         elif ch==curses.KEY_END:
             if self.bt==-1:
                 self.mvCursor(+len(self.entries[self.hl]))
