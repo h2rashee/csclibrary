@@ -114,8 +114,8 @@ class browserWindow:
     def scroll(self,delta):
         self.unHighlight()
         self.topline += delta
-        self.topline = max(self.topline,0)
         self.topline = min(self.topline,len(self.entries)-1)
+        self.topline = max(self.topline,0)
         self.refresh()
 
     def search(self, string):
@@ -223,7 +223,8 @@ class browserWindow:
             else:
                 self.hb.display(self.last_search+' not found')
         elif ch == 32:
-            self.selected[self.hl] = not self.selected[self.hl]
+            if len(self.selected)>0:
+                self.selected[self.hl] = not self.selected[self.hl]
             self.displayRow(self.hl-self.topline)
             self.highlight()
 
