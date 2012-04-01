@@ -347,6 +347,10 @@ class bookBrowser(browserWindow):
         self.entries = db.getBooks()
         self.selected = map(lambda x:False, self.entries)
 
+    def refreshBooksInCategory(self,cat):
+        self.entries = db.getBooksByCategory(cat)
+        self.selected = map(lambda x:False, self.entries)
+
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
         if ch == 117: #update on 'u'
@@ -393,6 +397,14 @@ class categoryBrowser(browserWindow):
             db.addCategory(c)
         cf.clear()
 
+    def viewCategory(self):
+        w = curses.newwin(20,80,20,20)
+        b = bookBrowser(w,self.hb)
+        self.centreChild(w)
+        b.refreshBooksInCategory(self.entries[self.hl])
+        b.eventLoop()
+        b.clear()
+
     def delSelected(self):
         categories = []
         for sel,cat in zip(self.selected, self.entries):
@@ -405,6 +417,9 @@ class categoryBrowser(browserWindow):
         if ch==97:
             self.addCategory()
             self.refreshCategories()
+            self.refresh()
+        if ch ==10:
+            self.viewCategory()
             self.refresh()
         if ch==100:
             count=0

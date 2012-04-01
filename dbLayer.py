@@ -145,7 +145,7 @@ def getBooks():
 def getBooksByCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "SELECT "+",".join(mapt(colify,columns))+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id;"
+    query = "SELECT "+",".join(map(colify,columns))+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id;"
     c.execute(query,cat)
     books = []
     for b in c:
