@@ -33,12 +33,12 @@ class browserWindow:
         (y,x) = self.w.getbegyx()
         self.cx = x + self.mx/2
         self.cy = y + self.my/2
-        self.pageSize = self.my-3
+        self.pageSize = self.my-4
         self.calcColWidths()
 
     def calcColWidths(self):
         total_weights = 0
-        available_space = self.mx - len(self.columnDefs)
+        available_space = self.mx - len(self.columnDefs) -2
         cols = []
         for label,weight,value in self.columnDefs:
             if value!=None:
@@ -56,6 +56,7 @@ class browserWindow:
     def refresh(self):
         self.hb.commands = self.commands
         self.hb.refresh()
+        self.w.box()
         self.displayHeader()
         for r in range(0,self.pageSize):
             self.displayRow(r)
@@ -72,36 +73,36 @@ class browserWindow:
 
 
     def displayHeader(self):
-        cursor = 1
+        cursor = 2
         for header,width in self.columns:
-            self.w.addnstr(0,cursor,header+" "*width,width)
-            self.w.addstr(1,cursor,"-"*width)
+            self.w.addnstr(1,cursor,header+" "*width,width)
+            self.w.addstr(2,cursor,"-"*width)
             cursor += width+1
 
     def displayRow(self,row):
         if self.topline+row < len(self.entries):
             entry = self.entries[self.topline+row]
-            cursor = 1
+            cursor = 2
             if self.selected[self.topline+row]:
-                self.w.addstr(row+2, 0, "*")
+                self.w.addstr(row+3, 1, "*")
             else:
-                self.w.addstr(row+2, 0, " ")
+                self.w.addstr(row+3, 1, " ")
             for k,width in self.columns:
                 if k.lower() in entry:
-                    self.w.addnstr(row+2,cursor,str(entry[k.lower()])+" "*width,width)
+                    self.w.addnstr(row+3,cursor,str(entry[k.lower()])+" "*width,width)
                 cursor += width+1
         else:
-            self.w.addstr(row+2,0," "*self.mx)
+            self.w.addstr(row+3,1," "*(self.mx-2))
 
     def highlight(self):
-        row = self.hl-self.topline+2
+        row = self.hl-self.topline+3
         if row > 1 and row < self.my:
-            self.w.chgat(row,0,self.mx,curses.A_REVERSE)
+            self.w.chgat(row,1,self.mx-2,curses.A_REVERSE)
 
     def unHighlight(self):
-        row = self.hl-self.topline+2
+        row = self.hl-self.topline+3
         if row > 1 and row < self.my:
-            self.w.chgat(row,0,self.mx,curses.A_NORMAL)
+            self.w.chgat(row,1,self.mx-2,curses.A_NORMAL)
 
     def mvHighlight(self,delta):
         new = self.hl+delta
