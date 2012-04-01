@@ -5,11 +5,13 @@ dbFile = 'sqLibrary.db'
 bookTable = 'books'
 bookRemovedTable='books_deleted'
 bookCategoryTable='book_categories'
+bookRemovedCategoryTable='books_deleted_categories'
 categoryTable = 'categories'
+
 
 bookTableCreation = '''
 CREATE TABLE IF NOT EXISTS books
-    (id INTEGER PRIMARY KEY, 
+    (id INTEGER PRIMARY KEY AUTOINCREMENT, 
      isbn, lccn, title, subtitle, authors, edition, 
      publisher, publish_year, publish_month, publish_location, 
      pages, pagination, weight, last_updated);
@@ -21,9 +23,12 @@ CREATE TABLE IF NOT EXISTS books_deleted
      pages, pagination, weight, last_updated);
 
 CREATE TABLE IF NOT EXISTS categories
-    (cat_id INTEGER PRIMARY KEY, category STRING);
+    (cat_id INTEGER PRIMARY KEY, category STRING UNIQUE ON CONFLICT IGNORE);
 
 CREATE TABLE IF NOT EXISTS book_categories
+    (id INTEGER, cat_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS books_deleted_categories
     (id INTEGER, cat_id INTEGER);
 '''
 
@@ -45,16 +50,30 @@ END;
 
 CREATE TRIGGER IF NOT EXISTS delete_books_backup BEFORE DELETE ON books
 BEGIN
-    INSERT INTO books_deleted (isbn, lccn, 
+    INSERT INTO books_deleted (id, isbn, lccn, 
                 title, subtitle, authors, edition, 
                 publisher, publish_year, publish_month, publish_location, 
                 pages, pagination, weight, last_updated)
-            SELECT isbn, lccn, 
+            SELECT id, isbn, lccn, 
                    title, subtitle, authors, edition, 
                    publisher, publish_year, publish_month, publish_location, 
                    pages, pagination, weight, last_updated
                    FROM books
                    WHERE rowid = old.rowid;
+    INSERT INTO books_deleted_categories (id, cat_id)
+            SELECT id, cat_id FROM book_categories WHERE id = old.rowid;
+    DELETE FROM book_categories WHERE id = old.rowid;
+END;
+
+CREATE TRIGGER IF NOT EXISTS delete_backup AFTER DELETE ON books_deleted
+BEGIN
+    DELETE FROM books_deleted_categories WHERE id = old.rowid;
+END;
+
+CREATE TRIGGER IF NOT EXISTS delete_category AFTER DELETE ON categories
+BEGIN
+    DELETE FROM book_categories WHERE cat_id = old.cat_id;
+    DELETE FROM books_deleted_categories WHERE cat_id = old.cat_id;
 END;
 
 CREATE TRIGGER IF NOT EXISTS insert_book_category_time AFTER INSERT ON book_categories
@@ -199,11 +218,13 @@ def removeBooks(books):
 def restoreBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query1 =  "INSERT INTO "+bookTable+" ("+",".join(map(colify,columns[1:]))+") SELECT "+",".join(map(colify,columns[1:]))+" FROM "+bookRemovedTable+" WHERE id = :id;"
-    query2 = "DELETE FROM " +bookRemovedTable+ " WHERE id = :id;"
+    query1 =  "INSERT INTO "+bookTable+" ("+",".join(map(colify,columns))+") SELECT "+",".join(map(colify,columns))+" FROM "+bookRemovedTable+" WHERE id = :id;"
+    query2 =  "INSERT INTO "+bookCategoryTable+" (id, cat_id) SELECT id,cat_id FROM "+bookRemovedCategoryTable+" WHERE id = :id;"
+    query3 = "DELETE FROM " +bookRemovedTable+ " WHERE id = :id;"
     for book in books:
         c.execute(query1,book)
         c.execute(query2,book)
+        c.execute(query3,book)
     conn.commit()
     c.close()
 
@@ -282,10 +303,8 @@ def deleteCategories(cats):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     query1 = "DELETE FROM " +categoryTable+ " WHERE cat_id = :id;"
-    query2 = "DELETE FROM " +bookCategoryTable+ " WHERE cat_id = :id;"
     for cat in cats:
         c.execute(query1, cat)
-        c.execute(query2, cat)
     conn.commit()
     c.close()
 
