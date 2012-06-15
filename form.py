@@ -204,16 +204,24 @@ class bookForm(formWindow):
 
     # redefineable functions lookup is called when 'enter' is pressed on ISBN
     # and returns the looked-up book. Default returns nothing
-    def lookup(self,isbn):
+    def lookup_isbn(self,isbn):
         return {'isbn':isbn}
+    
+    def lookup_lccn(self,lccn):
+        return {'lccn':lccn}
 
     def returnBook(self):
         return self.returnValues()
 
     def handleInput(self,ch):
         if ch==10 or ch==curses.KEY_ENTER:
-            if self.hl==0:
-                book = self.lookup(self.entries[0])
+            if self.hl==0:          # lookup by isbn
+                book = self.lookup_isbn(self.entries[0])
+                if book != {}:
+                    self.updateEntries(book)
+                self.refresh()
+            if self.hl==1:          # lookup by lccn
+                book = self.lookup_lccn(self.entries[1])
                 if book != {}:
                     self.updateEntries(book)
                 self.refresh()

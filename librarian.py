@@ -85,7 +85,8 @@ def addForm():
     bf = form.bookForm(w,hb)
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)/2,(mx-c)/2)
-    bf.lookup=bookData.openLibrary
+    bf.lookup_isbn=bookData.openLibrary_isbn
+    bf.lookup_lccn=bookData.openLibrary_lccn
     bf.caption='Add a Book'
     bf.blabel = 'Add'
     book = bf.eventLoop()
