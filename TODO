@@ -1,8 +1,11 @@
 _List of Desired Features_
 
 Search ignores Case
+Regex Search
 Choose shown columns in browser
 Support for multiple copies
+Trash by marking as deleted
+Text entry supports longer string
 
 _Implemented Features_
 Sort by column in browser
