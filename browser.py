@@ -223,6 +223,15 @@ class browserWindow:
                 self.mvHighlight(delta)
             else:
                 self.hb.display(self.last_search+' not found')
+        elif ch == 270: # F6 Sorts
+            w = curses.newwin(40,20,20,20)
+            cl = columnSelector(w,self.hb)
+            self.centreChild(w)
+            col = cl.eventLoop()
+            cl.clear()
+            self.sortByColumn(col)
+            self.clear()
+            self.refresh()
         elif ch == 32:
             if len(self.selected)>0:
                 self.selected[self.hl] = not self.selected[self.hl]
@@ -496,3 +505,37 @@ class categorySelector(browserWindow):
             self.updateCategories()
             return 113
 
+
+
+class columnSelector(browserWindow):
+    columnDefs = [('Column',100,None)]
+    entries = [{'column': 'id'}, {'column': 'isbn'}, {'column': 'lccn'},
+            {'column': 'title'}, {'column': 'subtitle'}, {'column': 'authors'}, 
+            {'column': 'edition'}, {'column': 'publisher'}, 
+            {'column': 'publish year'}, {'column': 'publish month'}, 
+            {'column': 'publish location'}, {'column': 'pages'}, {'column': 'pagination'}, 
+            {'column': 'weight'}, {'column': 'last updated'}]
+
+    def __init__(self,window,helpbar):
+        self.selected = [False,False,False,False,False,False,False,
+                         False,False,False,False,False,False,False,False]
+        browserWindow.__init__(self,window,helpbar)
+
+
+    def eventLoop(self):
+        self.w.keypad(1)
+        self.refresh()
+
+        ch = self.w.getch()
+        while ch != 27 and ch != 113:
+            ch = self.handleInput(ch)
+            if ch==10:
+                col = self.entries[self.hl]
+                return col['column']
+            self.w.refresh()
+            ch = self.w.getch()
+            self.hb.refresh()
+    
+    def handleInput(self,ch):
+        browserWindow.handleInput(self,ch)
+        return ch
