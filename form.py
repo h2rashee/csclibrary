@@ -86,7 +86,7 @@ class formWindow:
         self.hl = new
         self.row = self.hl + self.top
         if new == len(self.labels):
-            self.bt+=1
+            self.bt =1
             self.bt = min(self.bt,1)
             self.row+=1
         else:
