@@ -220,12 +220,15 @@ class bookForm(formWindow):
                 if book != {}:
                     self.updateEntries(book)
                 self.refresh()
+                self.mvHighlight(+7)
             if self.hl==1:          # lookup by lccn
                 book = self.lookup_lccn(self.entries[1])
                 if book != {}:
                     self.updateEntries(book)
                 self.refresh()
-        formWindow.handleInput(self,ch)
+                self.mvHighlight(+6)
+        else:
+            formWindow.handleInput(self,ch)
 
 class categoryForm(formWindow):
     caption = "Add a Category"

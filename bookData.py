@@ -103,10 +103,11 @@ def openLibrary_lccn(LCCN):
         book['publish location'] = book['publish location'][2:]
 
     # for isbn, there maybe be multiple values in the query. I'm just taking the first, but the full list may be useful
+    # There are also ISBN's that have non-number values :(
     if "isbn_10" in openBook['identifiers']:
-        book["isbn"]=int(openBook['identifiers']['isbn_10'][0])
+        book["isbn"]=openBook['identifiers']['isbn_10'][0]
     if "isbn_13" in openBook['identifiers']:
-        book["isbn"]=int(openBook['identifiers']['isbn_13'][0])
+        book["isbn"]=openBook['identifiers']['isbn_13'][0]
     if "publish_date" in openBook:
         book['publish date']=openBook['publish_date']
         #code to pull out year and month (hopefully)

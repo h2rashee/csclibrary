@@ -1,13 +1,16 @@
 _List of Desired Features_
 
+Categories work based on selection, not just highlight
+ - i.e. assign categories to multiple books at once
 Support UTF-8 for everything
 Search ignores Case
 Regex Search
 Choose shown columns in browser
 Support for multiple copies
-Trash by marking as deleted
 Text entry supports longer string
 
 _Implemented Features_
 Sort by column in browser
 
+_Bugs_
+Error when entering bad ISBN e.g. 02010798X (instead of 020107981X)
