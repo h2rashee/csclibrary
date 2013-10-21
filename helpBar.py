@@ -14,8 +14,8 @@ class helpBar:
     def updateGeometry(self):
         (self.my, self.mx) = self.w.getmaxyx()
         (self.y, self.x) = self.w.getbegyx()
-        self.numCols = self.mx/self.colWidth
-        numRows = len(self.commands)/self.numCols +1
+        self.numCols = self.mx//self.colWidth
+        numRows = len(self.commands)//self.numCols +1
         self.y += self.my - numRows
         self.my = numRows
         self.w.mvwin(0,0)

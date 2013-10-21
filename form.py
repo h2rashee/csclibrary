@@ -1,4 +1,5 @@
 import curses
+import sys
 
 class formWindow:
     mx = my = 0
@@ -52,7 +53,7 @@ class formWindow:
         self.hb.refresh()
         self.updateGeometry()
         self.w.box()
-        self.w.addstr(0,(self.mx-len(self.caption))/2,self.caption)
+        self.w.addstr(0,(self.mx-len(self.caption))//2,self.caption)
         r=self.top
         for l in self.labels:
             c = self.left-len(l)-2
@@ -105,7 +106,8 @@ class formWindow:
 
     def insert(self,ch):
         c = self.cursor
-        self.entries[self.hl]=self.entries[self.hl][:c] +ch+  self.entries[self.hl][c:]
+        #sys.stderr.write(str(type(ch)))
+        self.entries[self.hl]=self.entries[self.hl][:c] +ch.decode('utf-8')+  self.entries[self.hl][c:]
         self.drawRow(self.hl)
         self.mvCursor(+1)
         self.highlight()

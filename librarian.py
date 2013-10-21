@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import curses
 import dbLayer as db
 import browser
-import form
+import form as form
 import helpBar
 
 import bookData
@@ -24,7 +24,7 @@ def menutest(s, l):
     hb = helpBar.helpBar(bar)
     hb.command=menu_commands
     hb.refresh()
-    w = curses.newwin(10,40,(rows-10)/2, (cols-40)/2)
+    w = curses.newwin(10,40,(rows-10)//2, (cols-40)//2)
 
     menu(w, l)
     
@@ -84,7 +84,7 @@ def addForm():
     (my,mx)=stdscr.getmaxyx()
     bf = form.bookForm(w,hb)
     (r,c)=w.getmaxyx()
-    w.mvwin((my-r)/2,(mx-c)/2)
+    w.mvwin((my-r)//2,(mx-c)//2)
     bf.lookup_isbn=bookData.openLibrary_isbn
     bf.lookup_lccn=bookData.openLibrary_lccn
     bf.caption='Add a Book'
@@ -101,7 +101,7 @@ def updateMenu():
 
 def trashMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
+    w=curses.newwin(20,80,(my-20)//2,(mx-80)//2)
     b = browser.trashBrowser(w,hb)
     b.refreshBooks()
     b.eventLoop()
@@ -109,7 +109,7 @@ def trashMenu():
 
 def browseMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(20,80,(my-20)/2,(mx-80)/2)
+    w=curses.newwin(20,80,(my-20)//2,(mx-80)//2)
     b = browser.bookBrowser(w,hb)
     b.refreshBooks()
     b.eventLoop()
@@ -117,7 +117,7 @@ def browseMenu():
 
 def catMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(10,40,(my-10)/2,(mx-40)/2)
+    w=curses.newwin(10,40,(my-10)//2,(mx-40)//2)
     c = browser.categoryBrowser(w,hb)
     c.refreshCategories()
     c.sortByColumn('category')

@@ -7,7 +7,7 @@ class browserWindow:
     hl=0
     topline = 0
     entries = []
-    selected = []
+    selected = list()
     commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), (' q', 'quit')]
     cs = []
     # column definitions are in (label, weight, specified width) triples
@@ -26,13 +26,13 @@ class browserWindow:
 
     def sortByColumn(self, col):
         self.entries.sort(key=lambda k: k.get(col)) # key=dict.get(col))
-        self.selected = map(lambda x: False, self.selected)
+        self.selected = list(map(lambda x: False, self.selected))
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
         (y,x) = self.w.getbegyx()
-        self.cx = x + self.mx/2
-        self.cy = y + self.my/2
+        self.cx = x + self.mx//2
+        self.cy = y + self.my//2
         self.pageSize = self.my-4
         self.calcColWidths()
 
@@ -50,7 +50,7 @@ class browserWindow:
             if value!=None:
                 cols.append((label,value))
             else:
-                cols.append((label,available_space*weight/total_weights))
+                cols.append((label,available_space*weight//total_weights))
         self.columns=cols
 
     def refresh(self):
@@ -69,7 +69,7 @@ class browserWindow:
 
     def centreChild(self,child):
         (y,x)=child.getmaxyx()
-        child.mvwin(self.cy-y/2,self.cx-x/2)
+        child.mvwin(self.cy-y//2,self.cx-x//2)
 
 
     def displayHeader(self):
@@ -84,6 +84,7 @@ class browserWindow:
             entry = self.entries[self.topline+row]
             cursor = 2
             self.w.addnstr(row+3, 1, " "*self.mx,self.mx-2)
+            sys.stderr.write(str(type(self.selected)))
             if self.selected[self.topline+row]:
                 self.w.addstr(row+3, 1, "*")
             else:
@@ -187,11 +188,11 @@ class browserWindow:
     def handleInput(self,ch):
         if ch == curses.KEY_UP or ch == 107 or ch == 16:
             if self.hl == self.topline:
-                self.scroll(-self.pageSize/2-1)
+                self.scroll(-self.pageSize//2-1)
             self.mvHighlight(-1)
         elif ch == curses.KEY_DOWN or ch == 106 or ch == 14:
             if self.hl == self.topline+self.pageSize-1:
-                self.scroll(+self.pageSize/2+1)
+                self.scroll(+self.pageSize//2+1)
             self.mvHighlight(+1)
         elif ch == curses.KEY_PPAGE:
             self.scroll(-self.pageSize)
@@ -276,7 +277,7 @@ class trashBrowser(browserWindow):
 
     def refreshBooks(self):
         self.entries = db.getRemovedBooks()
-        self.selected = map(lambda x:False, self.entries)
+        self.selected = list(map(lambda x:False, self.entries))
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
@@ -356,11 +357,11 @@ class bookBrowser(browserWindow):
 
     def refreshBooks(self):
         self.entries = db.getBooks()
-        self.selected = map(lambda x:False, self.entries)
+        self.selected = list(map(lambda x:False, self.entries))
 
     def refreshBooksInCategory(self,cat):
         self.entries = db.getBooksByCategory(cat)
-        self.selected = map(lambda x:False, self.entries)
+        self.selected = list(map(lambda x:False, self.entries))
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
@@ -397,7 +398,7 @@ class categoryBrowser(browserWindow):
     def refreshCategories(self):
         self.entries = db.getCategories()
         self.sortByColumn('category')
-        self.selected = map(lambda x:False, self.entries)
+        self.selected = list(map(lambda x:False, self.entries))
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
@@ -457,7 +458,7 @@ class categorySelector(browserWindow):
         self.refreshSelected()
 
     def refreshSelected(self):
-        self.original = map(lambda x:False, self.entries)
+        self.original = list(map(lambda x:False, self.entries))
         cats = db.getBookCategories(self.book)
         cats.sort()
         cats.sort(key=lambda k: k.get('category')) # key=dict.get(col))

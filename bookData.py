@@ -1,5 +1,11 @@
-from urllib2 import urlopen,URLError
-from json import load,dumps
+try:
+        # For Python 3.0 and later
+            from urllib.request import urlopen,URLError
+except ImportError:
+        # Fall back to Python 2's urllib2
+            from urllib2 import urlopen,URLError
+from json import loads,dumps
+import sys
 
 """ Library Book Type Description:
 The book is a dictionary of the form { string : a, ... }
@@ -33,12 +39,12 @@ def openLibrary_isbn(ISBN):
         jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"+isbn, timeout=3)
     except URLError:
         return {}
-    openBook = load(jsondata)
+    openBook = loads(jsondata.read().decode('utf-8'))
     if "ISBN:"+isbn not in openBook:
         return {'isbn':isbn,'title':'Book not found'}
     openBook = openBook["ISBN:"+isbn]
     # create my custom dict for books with the info we want.
-    book = {"isbn" : isbn}
+    book = dict({"isbn" : isbn})
     book["title"]=openBook["title"]
     book["authors"]=""
     if "authors" in openBook:
