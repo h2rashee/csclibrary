@@ -85,7 +85,7 @@ def openLibrary_lccn(LCCN):
         jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=lccn:"+lccn, timeout=3)
     except URLError:
         return {}
-    openBook = load(jsondata)
+    openBook = loads(jsondata.read().decode('utf-8'))
     if "lccn:"+lccn not in openBook:
         return {'lccn':lccn,'title':'Book not found'}
     openBook = openBook["lccn:"+lccn]

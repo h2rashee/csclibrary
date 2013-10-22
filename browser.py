@@ -84,7 +84,6 @@ class browserWindow:
             entry = self.entries[self.topline+row]
             cursor = 2
             self.w.addnstr(row+3, 1, " "*self.mx,self.mx-2)
-            sys.stderr.write(str(type(self.selected)))
             if self.selected[self.topline+row]:
                 self.w.addstr(row+3, 1, "*")
             else:
