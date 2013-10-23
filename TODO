@@ -21,6 +21,8 @@ Make db_layer use a helper function to handle most of the database queries
 _Bugs_
 Error when entering bad ISBN e.g. 02010798X (instead of 020107981X)
  - seems to be an intermittant error, likely related to polling openLibrary
+Error on search 
+ - related to strings in Python3
 When the top element shown is highlighted in the browser window, and pgUp is pressed (causing a scrollup), the bottom border of the window turns into 'qqqqqqqq'.
  - does not happen when up_arrow is pressed.
 
