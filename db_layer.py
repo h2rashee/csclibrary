@@ -92,15 +92,7 @@ def getBooks():
     c = conn.cursor()
     query = "SELECT * FROM "+bookTable+" WHERE deleted=0;"
     c.execute(query)
-    books = []
-    for b in c:
-        book = {}
-        i = 0
-        for k in columns:
-            if b[i]!=None:
-                book[k]=b[i]
-            i+=1
-        books.append(book)
+    books = [_query_to_book(b) for b in c]
     c.close()
     return books
 
@@ -109,15 +101,7 @@ def getBooksByCategory(cat):
     c = conn.cursor()
     query = "SELECT "+",".join(map(colify,columns))+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id AND deleted=0;"
     c.execute(query,cat)
-    books = []
-    for b in c:
-        book = {}
-        i = 0
-        for k in columns:
-            if b[i]!=None:
-                book[k]=b[i]
-            i+=1
-        books.append(book)
+    books = [_query_to_book(b) for b in c]
     c.close()
     return books
 
@@ -126,15 +110,7 @@ def getRemovedBooks():
     c = conn.cursor()
     query = "SELECT * FROM "+bookTable+" WHERE DELETED=1;"
     c.execute(query)
-    books = []
-    for b in c:
-        book = {}
-        i = 0
-        for k in columns:
-            if b[i]!=None:
-                book[k]=b[i]
-            i+=1
-        books.append(book)
+    books = [_query_to_book(b) for b in c]
     c.close()
     return books
 
@@ -143,16 +119,9 @@ def getBookByID(bookid):
     c = conn.cursor()
     query = "SELECT * FROM "+bookTable+" WHERE id = "+str(bookid)+";"
     c.execute(query)
-    b = c.fetchone()
-    book = {}
-    i=0
-    for k in columns:
-        if b[i]!=None:
-            book[k]=b[i]
-        i+=1
+    book = _query_to_book(c.fetchone())
     c.close()
     return book
-
 
 # removes book from catalogue
 def removeBook(bookid):
@@ -199,6 +168,11 @@ def deleteBooks(books):
         c.execute(query, book)
     conn.commit()
     c.close()
+
+def _query_to_book(book_query):
+    # Make a dict out of column name and query results.
+    # Empty entries return None, which are removed from the dict.
+    return dict(filter(lambda t:t[1], zip(columns,book_query)))
 
 #########################################
 # Category related functions
