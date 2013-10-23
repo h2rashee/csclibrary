@@ -1,6 +1,6 @@
 import sys
 import curses
-import dbLayer as db
+import db_layer as db
 from form import bookForm,categoryForm
 
 class browserWindow:

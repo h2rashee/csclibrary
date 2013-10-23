@@ -2,15 +2,32 @@ _List of Desired Features_
 
 Categories work based on selection, not just highlight
  - i.e. assign categories to multiple books at once
-Support UTF-8 for everything
+ - this may involve extra logic if books don't have the same categories beforehand
 Search ignores Case
 Regex Search
 Choose shown columns in browser
 Support for multiple copies
 Text entry supports longer string
+ - implementation started in gui.py
+Home and End navigate to top and bottom of catalogue respectively.
 
-_Implemented Features_
-Sort by column in browser
+
+_Code Quality Improvements_
+Document all functions
+Conform to python naming conventions and code style
+Make db_layer use a helper function to handle most of the database queries
+
 
 _Bugs_
 Error when entering bad ISBN e.g. 02010798X (instead of 020107981X)
+ - seems to be an intermittant error, likely related to polling openLibrary
+When the top element shown is highlighted in the browser window, and pgUp is pressed (causing a scrollup), the bottom border of the window turns into 'qqqqqqqq'.
+ - does not happen when up_arrow is pressed.
+
+
+
+
+_Implemented Features_
+Sort by column in browser
+Support UTF-8 for everything
+

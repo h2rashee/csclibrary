@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import curses
-import dbLayer as db
+import db_layer as db
 import browser
 import form as form
-import helpBar
+import help_bar as helpBar
 
-import bookData
+import book_data
 
 
 stdscr=0
