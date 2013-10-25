@@ -57,7 +57,7 @@ class helpBar:
                 string = string[0:len(string)-1]
                 self.w.addstr(0,1,string)
             elif ch>=32 and ch<=126:
-                char = curses.keyname(ch)
+                char = curses.keyname(ch).decode('utf-8')
                 string = string + char
                 self.w.addstr(0,1,string)
             self.w.refresh()

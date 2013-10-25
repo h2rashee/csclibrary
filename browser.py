@@ -8,7 +8,8 @@ class browserWindow:
     topline = 0
     entries = []
     selected = list()
-    commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), (' q', 'quit')]
+    commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), 
+            ('F6', 'Sort Column'), (' q', 'quit')]
     cs = []
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
@@ -25,8 +26,9 @@ class browserWindow:
         self.commands = self.cs+self.commands
 
     def sortByColumn(self, col):
-        self.entries.sort(key=lambda k: k.get(col)) # key=dict.get(col))
+        self.entries.sort(key=lambda k: k.get(col,"")) # key=dict.get(col))
         self.selected = list(map(lambda x: False, self.selected))
+
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
@@ -121,12 +123,17 @@ class browserWindow:
         self.refresh()
 
     def search(self, string):
+        case_sensitive = not(string.islower())
+        #sys.stderr.write(str(case_sensitive)+'\n')
         i = 0
         found = False
         for e in self.entries:
             for k,v in e.items():
-                if str(v).find(string) != -1:
-                    found = True
+                # we or with found to make sure it is never "unfound"
+                if case_sensitive:
+                    found = str(v).find(string) != -1 or found
+                else:
+                    found = str(v).lower().find(string) != -1 or found
             if found:
                 break
             i += 1;
