@@ -199,6 +199,12 @@ class browserWindow:
         elif ch == curses.KEY_NPAGE:
             self.scroll(+self.pageSize)
             self.mvHighlight(+self.pageSize)
+        elif ch == curses.KEY_HOME:
+            self.scroll(-len(self.entries))
+            self.mvHighlight(-len(self.entries))
+        elif ch == curses.KEY_END:
+            self.scroll(len(self.entries))
+            self.mvHighlight(len(self.entries))
         elif ch == 47: # forward slash
             string = self.hb.getSearch()
             hl = self.search(string)
