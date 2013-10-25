@@ -3,7 +3,7 @@
 import curses
 import db_layer as db
 import browser
-import form as form
+import gui as form
 import help_bar as helpBar
 
 import book_data
@@ -82,14 +82,14 @@ def redrawMenu(w,items,highlight):
 def addForm():
     w=curses.newwin(1,1)
     (my,mx)=stdscr.getmaxyx()
-    bf = form.bookForm(w,hb)
+    bf = form.BookForm(w,hb)
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)//2,(mx-c)//2)
     bf.lookup_isbn=book_data.openLibrary_isbn
     bf.lookup_lccn=book_data.openLibrary_lccn
     bf.caption='Add a Book'
     bf.blabel = 'Add'
-    book = bf.eventLoop()
+    book = bf.event_loop()
     bf.clear()
     if len(book)!=0:
         db.addBook(book)

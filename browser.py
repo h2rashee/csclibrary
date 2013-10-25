@@ -1,7 +1,7 @@
 import sys
 import curses
 import db_layer as db
-from form import bookForm,categoryForm
+from gui import BookForm,CategoryForm
 
 class browserWindow:
     hl=0
@@ -259,11 +259,11 @@ class trashBrowser(browserWindow):
     def viewSelection(self,book):
         bookid = book['id']
         w=curses.newwin(1,1,20,20)
-        bf = bookForm(w,self.hb,book)
+        bf = BookForm(w,self.hb,book)
         self.centreChild(w)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
-        bf.eventLoop()
+        bf.event_loop()
         bf.clear()
 
     def restoreSelected(self):
@@ -325,11 +325,11 @@ class bookBrowser(browserWindow):
         bookid = book['id']
         
         w=curses.newwin(1,1)
-        bf=bookForm(w,self.hb,book)
+        bf=BookForm(w,self.hb,book)
         self.centreChild(w)
         bf.caption='Update Book '+str(bookid)
         bf.blabel='update'
-        newbook = bf.eventLoop()
+        newbook = bf.event_loop()
         if len(newbook)!=0:
             db.updateBook(newbook,bookid)
         bf.clear()
@@ -337,11 +337,11 @@ class bookBrowser(browserWindow):
     def viewSelection(self,book):
         bookid = book['id']
         w=curses.newwin(1,1,20,20)
-        bf = bookForm(w,self.hb,book)
+        bf = BookForm(w,self.hb,book)
         self.centreChild(w)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
-        bf.eventLoop()
+        bf.event_loop()
         bf.clear()
 
     def categorizeSelection(self,book):
@@ -407,9 +407,9 @@ class categoryBrowser(browserWindow):
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
-        cf = categoryForm(w,self.hb)
+        cf = CategoryForm(w,self.hb)
         self.centreChild(w)
-        cats = cf.eventLoop()
+        cats = cf.event_loop()
         for c in cats:
             db.addCategory(c)
         cf.clear()
@@ -481,9 +481,9 @@ class categorySelector(browserWindow):
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
-        cf = categoryForm(w,self.hb)
+        cf = CategoryForm(w,self.hb)
         self.centreChild(w)
-        cats = cf.eventLoop()
+        cats = cf.event_loop()
         for c in cats:
             db.addCategory(c)
         cf.clear()
