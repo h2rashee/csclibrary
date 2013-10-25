@@ -3,13 +3,11 @@ _List of Desired Features_
 Categories work based on selection, not just highlight
  - i.e. assign categories to multiple books at once
  - this may involve extra logic if books don't have the same categories beforehand
-Search ignores Case
 Regex Search
 Choose shown columns in browser
 Support for multiple copies
-Text entry supports longer string
- - implementation started in gui.py
-Home and End navigate to top and bottom of catalogue respectively.
+ - (better support, that is)
+ - some way of identifying the physical ones with the virtual ones
 
 
 _Code Quality Improvements_
@@ -32,4 +30,6 @@ When the top element shown is highlighted in the browser window, and pgUp is pre
 _Implemented Features_
 Sort by column in browser
 Support UTF-8 for everything
-
+Search ignores Case (for lowercase search strings)
+Text entry supports longer string
+Home and End navigate to top and bottom of catalogue respectively.
