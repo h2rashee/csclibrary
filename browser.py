@@ -1,7 +1,7 @@
 import sys
 import curses
 import db_layer as db
-from gui import BookForm,CategoryForm
+from form import BookForm,CategoryForm
 
 class browserWindow:
     hl=0

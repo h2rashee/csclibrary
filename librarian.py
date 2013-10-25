@@ -3,7 +3,7 @@
 import curses
 import db_layer as db
 import browser
-import gui as form
+import form
 import help_bar as helpBar
 
 import book_data
