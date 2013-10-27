@@ -138,19 +138,31 @@ class browserWindow:
         if found:
             self.last_search = string
             self.search_index = i
+            self.case_sensitive = case_sensitive
             return i
         else:
             self.search_index = -1
             return -1
 
-    def findNext(self):
+    def _find_again(self, direction=1):
+        """Find the next match in the entries
+
+        direction = 1 means look ahead
+        direction = -1 means look back
+        """
         if self.last_search == "" or self.search_index == -1:
             return -1
         found = False
-        for i in range(self.hl+1,len(self.entries)-1):
+        if direction == 1:
+            last = len(self.entries) -1
+        elif direction == -1:
+            last = 0
+        for i in range(self.hl+direction, last, direction):
             for k,v in self.entries[i].items():
-                if str(v).find(self.last_search) != -1:
-                    found = True
+                if self.case_sensitive:
+                    found = str(v).find(self.last_search) != -1 or found
+                else:
+                    found = str(v).lower().find(self.last_search) != -1 or found
             if found:
                 break
         if found:
@@ -158,23 +170,6 @@ class browserWindow:
             return i
         else:
             return -1
-
-    def findPrevious(self):
-        if self.last_search == "" or self.search_index == -1:
-            return -1
-        found = False
-        for i in range(self.hl-1, 0, -1):
-            for k,v in self.entries[i].items():
-                if str(v).find(self.last_search) != -1:
-                    found = True
-            if found:
-                break
-        if found:
-            self.search_index = i
-            return i
-        else:
-            return -1
-
 
     def eventLoop(self):
         self.w.keypad(1)
@@ -220,7 +215,7 @@ class browserWindow:
             else:
                 self.hb.display(string+' not found')
         elif ch == 110: # n
-            hl = self.findNext()
+            hl = self._find_again(+1)
             if hl != -1:
                 delta = hl - self.hl
                 self.scroll(delta)
@@ -228,7 +223,7 @@ class browserWindow:
             else:
                 self.hb.display(self.last_search+' not found')
         elif ch == 78: # N
-            hl = self.findPrevious()
+            hl = self._find_again(-1)
             if hl != -1:
                 delta = hl - self.hl
                 self.scroll(delta)
