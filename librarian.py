@@ -82,7 +82,7 @@ def redrawMenu(w,items,highlight):
 def addForm():
     w=curses.newwin(1,1)
     (my,mx)=stdscr.getmaxyx()
-    bf = form.BookForm(w,hb)
+    bf = form.BookForm(w,hb,width=mx-20)
     (r,c)=w.getmaxyx()
     w.mvwin((my-r)//2,(mx-c)//2)
     bf.lookup_isbn=book_data.openLibrary_isbn
@@ -101,28 +101,34 @@ def updateMenu():
 
 def trashMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(20,80,(my-20)//2,(mx-80)//2)
-    b = browser.trashBrowser(w,hb)
+    w=curses.newwin(3,5)
+    b = browser.trashBrowser(w,hb,my-10,mx-10)
+    (r,c) = w.getmaxyx()
+    w.mvwin((my-r)//2 -2, (mx-c)//2)
     b.refreshBooks()
     b.eventLoop()
     b.clear()
 
 def browseMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(20,80,(my-20)//2,(mx-80)//2)
-    b = browser.bookBrowser(w,hb)
+    w=curses.newwin(3,5)
+    b = browser.bookBrowser(w,hb, my-10, mx-10)
+    (r,c) = w.getmaxyx()
+    w.mvwin((my-r)//2 -2, (mx-c)//2)
     b.refreshBooks()
     b.eventLoop()
     b.clear()
 
 def catMenu():
     (my,mx)=stdscr.getmaxyx()
-    w=curses.newwin(10,40,(my-10)//2,(mx-40)//2)
-    c = browser.categoryBrowser(w,hb)
-    c.refreshCategories()
-    c.sortByColumn('category')
-    c.eventLoop()
-    c.clear()
+    w=curses.newwin(3,5)
+    cat = browser.categoryBrowser(w,hb, 10,40)
+    (r,c) = w.getmaxyx()
+    w.mvwin((my-r)//2 -2, (mx-c)//2)
+    cat.refreshCategories()
+    cat.sortByColumn('category')
+    cat.eventLoop()
+    cat.clear()
 
 
 m = [("Browse Library", browseMenu),
@@ -132,3 +138,5 @@ m = [("Browse Library", browseMenu),
      ("",exit),
      ("Exit", exit)]
 curses.wrapper(menutest, m)
+
+

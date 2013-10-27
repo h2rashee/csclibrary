@@ -130,9 +130,9 @@ class FormWindow:
 
 
     # Public functions
-    def __init__(self,window,helpbar,book={}):
+    def __init__(self,window,helpbar,book={}, width=50):
         self.w = window
-        self.w.resize(len(self.labels)+6,50)
+        self.w.resize(len(self.labels)+6,width)
         self.hb = helpbar
         self._make_entries()
         self._update_geometry()

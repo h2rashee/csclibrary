@@ -14,14 +14,14 @@ class browserWindow:
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
     mx = my = 0
-    cx = cy = 0
     # for searches
     last_search = ""
     found_index = 0
 
-    def __init__(self,window,helpbar):
+    def __init__(self,window,helpbar, height=50, width=80):
         self.w = window
         self.hb = helpbar
+        self.w.resize(height,width)
         self.updateGeometry()
         self.commands = self.cs+self.commands
 
@@ -32,9 +32,6 @@ class browserWindow:
 
     def updateGeometry(self):
         (self.my,self.mx)=self.w.getmaxyx()
-        (y,x) = self.w.getbegyx()
-        self.cx = x + self.mx//2
-        self.cy = y + self.my//2
         self.pageSize = self.my-4
         self.calcColWidths()
 
@@ -70,8 +67,9 @@ class browserWindow:
         self.w.refresh()
 
     def centreChild(self,child):
-        (y,x)=child.getmaxyx()
-        child.mvwin(self.cy-y//2,self.cx-x//2)
+        (y,x) = self.w.getbegyx()
+        (r,c) = child.getmaxyx()
+        child.mvwin( y+(self.my-r)//2,x+(self.mx-c)//2)
 
 
     def displayHeader(self):
@@ -238,8 +236,8 @@ class browserWindow:
             else:
                 self.hb.display(self.last_search+' not found')
         elif ch == 270: # F6 Sorts
-            w = curses.newwin(40,20,20,20)
-            cl = columnSelector(w,self.hb)
+            w = curses.newwin(1,1)
+            cl = columnSelector(w,self.hb,40,20)
             self.centreChild(w)
             col = cl.eventLoop()
             cl.clear()
@@ -265,8 +263,8 @@ class trashBrowser(browserWindow):
     # redefinable functions
     def viewSelection(self,book):
         bookid = book['id']
-        w=curses.newwin(1,1,20,20)
-        bf = BookForm(w,self.hb,book)
+        w=curses.newwin(1,1)
+        bf = BookForm(w, self.hb, book, width=self.mx-10)
         self.centreChild(w)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
@@ -332,7 +330,7 @@ class bookBrowser(browserWindow):
         bookid = book['id']
         
         w=curses.newwin(1,1)
-        bf=BookForm(w,self.hb,book)
+        bf = BookForm(w,self.hb,book, width=self.mx-20)
         self.centreChild(w)
         bf.caption='Update Book '+str(bookid)
         bf.blabel='update'
@@ -343,8 +341,8 @@ class bookBrowser(browserWindow):
 
     def viewSelection(self,book):
         bookid = book['id']
-        w=curses.newwin(1,1,20,20)
-        bf = BookForm(w,self.hb,book)
+        w=curses.newwin(1,1)
+        bf = BookForm(w,self.hb,book, width=self.mx-20)
         self.centreChild(w)
         bf.caption='Viewing Book '+str(bookid)
         bf.blabel='done'
@@ -352,8 +350,8 @@ class bookBrowser(browserWindow):
         bf.clear()
 
     def categorizeSelection(self,book):
-        w = curses.newwin(40,20,20,20)
-        cs = categorySelector(w,self.hb)
+        w = curses.newwin(1,1)
+        cs = categorySelector(w,self.hb,40,40)
         self.centreChild(w)
         cs.book = book
         cs.refreshCategories()
@@ -530,10 +528,10 @@ class columnSelector(browserWindow):
             {'column': 'publish location'}, {'column': 'pages'}, {'column': 'pagination'}, 
             {'column': 'weight'}, {'column': 'last updated'}]
 
-    def __init__(self,window,helpbar):
+    def __init__(self,window,helpbar,height=40,width=20):
         self.selected = [False,False,False,False,False,False,False,
                          False,False,False,False,False,False,False,False]
-        browserWindow.__init__(self,window,helpbar)
+        browserWindow.__init__(self,window,helpbar,height,width)
 
 
     def eventLoop(self):
