@@ -36,7 +36,9 @@ Keys:
 def openLibrary_isbn(ISBN):
     isbn = str(ISBN)
     try:
-        jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=ISBN:"+isbn, timeout=3)
+        jsondata = urlopen("http://openlibrary.org/api/books"
+                           "?format=json&jscmd=data&bibkeys=ISBN:"+isbn,
+                           timeout=3)
     except URLError:
         return {}
     openBook = loads(jsondata.read().decode('utf-8'))
@@ -62,7 +64,8 @@ def openLibrary_isbn(ISBN):
             book["publish location"] += "; " + v['name']
         book['publish location'] = book['publish location'][2:]
 
-    # for lccn, there maybe be multiple values in the query. I'm just taking the first, but the full list may be useful
+    # for lccn, there maybe be multiple values in the query. I'm just taking
+    # the first, but the full list may be useful
     if "lccn" in openBook['identifiers']:
         book["lccn"]=int(openBook['identifiers']['lccn'][0])
     if "publish_date" in openBook:
@@ -82,7 +85,9 @@ def openLibrary_isbn(ISBN):
 def openLibrary_lccn(LCCN):
     lccn = str(LCCN)
     try:
-        jsondata = urlopen("http://openlibrary.org/api/books?format=json&jscmd=data&bibkeys=lccn:"+lccn, timeout=3)
+        jsondata = urlopen("http://openlibrary.org/api/books"
+                           "?format=json&jscmd=data&bibkeys=lccn:"+lccn,
+                           timeout=3)
     except URLError:
         return {}
     openBook = loads(jsondata.read().decode('utf-8'))
@@ -108,7 +113,8 @@ def openLibrary_lccn(LCCN):
             book["publish location"] += "; " + v['name']
         book['publish location'] = book['publish location'][2:]
 
-    # for isbn, there maybe be multiple values in the query. I'm just taking the first, but the full list may be useful
+    # for isbn, there maybe be multiple values in the query. I'm just taking
+    # the first, but the full list may be useful
     # There are also ISBN's that have non-number values :(
     if "isbn_10" in openBook['identifiers']:
         book["isbn"]=openBook['identifiers']['isbn_10'][0]

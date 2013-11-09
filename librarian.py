@@ -131,12 +131,14 @@ def catMenu():
     cat.clear()
 
 
-m = [("Browse Library", browseMenu),
-     ("Add Book", addForm),
-     ("Categories", catMenu),
-     ("View Trash", trashMenu),
-     ("",exit),
-     ("Exit", exit)]
-curses.wrapper(menutest, m)
+if __name__ == "__main__":
+    db.initializeDatabase()
+    m = [("Browse Library", browseMenu),
+         ("Add Book", addForm),
+         ("Categories", catMenu),
+         ("View Trash", trashMenu),
+         ("",exit),
+         ("Exit", exit)]
+    curses.wrapper(menutest, m)
 
 

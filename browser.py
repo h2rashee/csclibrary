@@ -8,8 +8,8 @@ class browserWindow:
     topline = 0
     entries = []
     selected = list()
-    commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'), 
-            ('F6', 'Sort Column'), (' q', 'quit')]
+    commands = [(' /', 'search'), (' n', 'find next'), (' N', 'find previous'),
+                ('F6', 'Sort Column'), (' q', 'quit')]
     cs = []
     # column definitions are in (label, weight, specified width) triples
     columnDefs = [('something',1,None)]
@@ -90,7 +90,8 @@ class browserWindow:
                 self.w.addstr(row+3, 1, " ")
             for k,width in self.columns:
                 if k.lower() in entry:
-                    self.w.addnstr(row+3,cursor,str(entry[k.lower()])+" "*width,width)
+                    self.w.addnstr(row+3, cursor,
+                                   str(entry[k.lower()])+" "*width, width)
                 cursor += width+1
         else:
             self.w.addstr(row+3,1," "*(self.mx-2))
@@ -492,10 +493,11 @@ class categorySelector(browserWindow):
         # first removed the deselected ones
         uncats = []
         cats = []
-        for old, new, category in zip(self.original, self.selected, self.entries):
-            if old and (not new):
+        for old, new, category in zip(self.original, self.selected,
+                                      self.entries):
+            if old and not new:
                 uncats.append(category)
-            if (not old) and new:
+            if not old and new:
                 cats.append(category)
         db.uncategorizeBook(self.book, uncats)
         # add the newly selected categories
@@ -516,12 +518,15 @@ class categorySelector(browserWindow):
 
 class columnSelector(browserWindow):
     columnDefs = [('Column',100,None)]
-    entries = [{'column': 'id'}, {'column': 'isbn'}, {'column': 'lccn'},
-            {'column': 'title'}, {'column': 'subtitle'}, {'column': 'authors'}, 
+    entries = [
+            {'column': 'id'}, {'column': 'isbn'}, {'column': 'lccn'},
+            {'column': 'title'}, {'column': 'subtitle'}, {'column': 'authors'},
             {'column': 'edition'}, {'column': 'publisher'}, 
             {'column': 'publish year'}, {'column': 'publish month'}, 
-            {'column': 'publish location'}, {'column': 'pages'}, {'column': 'pagination'}, 
-            {'column': 'weight'}, {'column': 'last updated'}]
+            {'column': 'publish location'}, {'column': 'pages'},
+            {'column': 'pagination'}, {'column': 'weight'},
+            {'column': 'last updated'},
+    ]
 
     def __init__(self,window,helpbar,height=40,width=20):
         self.selected = [False,False,False,False,False,False,False,

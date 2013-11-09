@@ -1,6 +1,8 @@
 import sys
 import sqlite3
 
+import permissions
+
 dbFile = 'sqLibrary.db'
 bookTable = 'books'
 bookCategoryTable='book_categories'
@@ -12,7 +14,9 @@ CREATE TABLE IF NOT EXISTS books
     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
      isbn, lccn, title, subtitle, authors, edition, 
      publisher, publish_year, publish_month, publish_location, 
-     pages, pagination, weight, last_updated DATETIME DEFAULT current_timestamp, deleted BOOLEAN DEFAULT 0);
+     pages, pagination, weight,
+     last_updated DATETIME DEFAULT current_timestamp,
+     deleted BOOLEAN DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS categories
     (cat_id INTEGER PRIMARY KEY, category STRING UNIQUE ON CONFLICT IGNORE);
@@ -43,7 +47,8 @@ BEGIN
     DELETE FROM book_categories WHERE cat_id = old.cat_id;
 END;
 
-CREATE TRIGGER IF NOT EXISTS insert_book_category_time AFTER INSERT ON book_categories
+CREATE TRIGGER IF NOT EXISTS insert_book_category_time AFTER INSERT
+ON book_categories
 BEGIN
     UPDATE books SET last_updated = DATETIME('NOW') WHERE id = new.id;
 END;
@@ -52,15 +57,16 @@ END;
 ################################3
 # character escaping, etc for sql queries
 #################################
-def colify(s):
+def _colify(s):
     return s.replace(" ","_").lower()
 
-def stringify(v):
+def _stringify(v):
     return '"' + str(v).strip().replace('"','""') + '"'
 
 ###################################
 # book functions
 ##################################
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def addBook(book):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -68,21 +74,28 @@ def addBook(book):
     vals = []
     for k,v in book.items():
         if v!="":
-            cols.append(colify(k))
-            vals.append(stringify(v))
+            cols.append(_colify(k))
+            vals.append(_stringify(v))
     
-    query = "INSERT INTO "+bookTable+" ("+", ".join(cols)+") VALUES ("+", ".join(vals)+");"
+    query = ("INSERT INTO "+bookTable+" ("+", ".join(cols)+") VALUES ("+
+             ", ".join(vals)+");")
     c.execute(query)
     conn.commit()
     c.close()
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def updateBook(book, bookID):
+    '''
+    Takes book attribute dictionary and a string representating the book ID
+    number, and returns updates the book accordingly
+    '''
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     updates=[]
     for k,v in book.items():
-        updates.append(colify(k)+"="+stringify(v))
-    query = "UPDATE "+bookTable+" SET " +  ", ".join(updates)+" WHERE id = " +str(bookID)+";"
+        updates.append(_colify(k)+"="+_stringify(v))
+    query = ("UPDATE "+bookTable+" SET " +  ", ".join(updates)+" WHERE id = " +
+             str(bookID)+";")
     c.execute(query)
     conn.commit()
     c.close()
@@ -97,9 +110,15 @@ def getBooks():
     return books
 
 def getBooksByCategory(cat):
+    '''
+    Takes a string representating the category ID number, and returns
+    non-deleted books in that category
+    '''
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "SELECT "+",".join(map(colify,columns))+" FROM "+bookTable+" JOIN "+bookCategoryTable+" USING (id) WHERE cat_id = :id AND deleted=0;"
+    query = ("SELECT "+",".join(map(_colify,columns))+" FROM "+bookTable+
+             " JOIN "+bookCategoryTable+
+             " USING (id) WHERE cat_id = :id AND deleted=0;")
     c.execute(query,cat)
     books = [_query_to_book(b) for b in c]
     c.close()
@@ -124,6 +143,7 @@ def getBookByID(bookid):
     return book
 
 # removes book from catalogue
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def removeBook(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -132,6 +152,7 @@ def removeBook(bookid):
     conn.commit()
     c.close()
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def removeBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -142,6 +163,7 @@ def removeBooks(books):
     c.close()
 
 # restores trashed books
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def restoreBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -151,7 +173,8 @@ def restoreBooks(books):
     conn.commit()
     c.close()
 
-# fully deletes book from removedBooks table
+# fully deletes book from books table
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteBook(bookid):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -160,6 +183,7 @@ def deleteBook(bookid):
     conn.commit()
     c.close()
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteBooks(books):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -180,7 +204,8 @@ def _query_to_book(book_query):
 def getBookCategories(book):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "SELECT id,cat_id,category FROM "+bookCategoryTable+" JOIN "+categoryTable+" USING (cat_id) WHERE id = :id ;"
+    query = ("SELECT id,cat_id,category FROM "+bookCategoryTable+" JOIN "+
+             categoryTable+" USING (cat_id) WHERE id = :id ;")
     c.execute(query,book)
     cats = []
     for book_id,cat_id,cat_name in c:
@@ -188,16 +213,19 @@ def getBookCategories(book):
     c.close()
     return cats
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def categorizeBook(book, cats):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "INSERT OR IGNORE INTO "+bookCategoryTable+" (id,cat_id) VALUES (?, ?);"
+    query = ("INSERT OR IGNORE INTO "+bookCategoryTable+
+             " (id,cat_id) VALUES (?, ?);")
     for cat in cats:
         args = (book['id'],cat['id'])
         c.execute(query,args)
     conn.commit()
     c.close()
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def uncategorizeBook(book, cats):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -219,14 +247,17 @@ def getCategories():
     c.close()
     return cats
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def addCategory(cat):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
-    query = "INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("+stringify(cat)+");"
+    query = ("INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("
+             +_stringify(cat)+");")
     c.execute(query)
     conn.commit()
     c.close()
 
+@permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteCategories(cats):
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
@@ -239,20 +270,20 @@ def deleteCategories(cats):
 #########################################
 # Database initialization
 #########################################
-def createBooksTable():
+def _createBooksTable():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     c.executescript(bookTableCreation)
     conn.commit()
     c.close()
 
-def createTriggers():
+def _createTriggers():
     conn = sqlite3.connect(dbFile)
     c = conn.cursor()
     c.executescript(bookTriggerCreation)
     conn.commit()
     c.close()
 
-
-createBooksTable()
-createTriggers()
+def initializeDatabase():
+    _createBooksTable()
+    _createTriggers()

@@ -28,7 +28,8 @@ class helpBar:
         r=0
         c=0
         for key,command in self.commands:
-            self.w.addnstr(r,c,key+" "+command+" "*self.colWidth,self.colWidth-1)
+            self.w.addnstr(r,c,key+" "+command+" "*self.colWidth,
+                           self.colWidth-1)
             self.w.chgat(r,c,2,curses.A_REVERSE)
             c+=self.colWidth
             if c > self.colWidth*self.numCols:

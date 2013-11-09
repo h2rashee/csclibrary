@@ -14,6 +14,8 @@ _Code Quality Improvements_
 Document all functions
 Conform to python naming conventions and code style
 Make db_layer use a helper function to handle most of the database queries
+Unify the db_layer interface w.r.t. whether book_ids should be passed as
+strings or ints or dicts.
 
 
 _Bugs_
