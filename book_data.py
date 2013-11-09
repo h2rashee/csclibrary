@@ -5,6 +5,7 @@ except ImportError:
         # Fall back to Python 2's urllib2
             from urllib2 import urlopen,URLError
 from json import loads,dumps
+from socket import timeout
 import sys
 
 """ Library Book Type Description:
@@ -39,8 +40,10 @@ def openLibrary_isbn(ISBN):
         jsondata = urlopen("http://openlibrary.org/api/books"
                            "?format=json&jscmd=data&bibkeys=ISBN:"+isbn,
                            timeout=3)
-    except URLError:
-        return {}
+    except URLError as e:
+        return {'title':e}
+    except timeout:
+        return {'title':'Timeout while connecting to OpenLibrary.org'}
     openBook = loads(jsondata.read().decode('utf-8'))
     if "ISBN:"+isbn not in openBook:
         return {'isbn':isbn,'title':'Book not found'}
