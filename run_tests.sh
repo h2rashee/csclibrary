@@ -6,4 +6,4 @@ librarian_tests_dir="${librarian_dir}/librarian_tests"
 export PYTHONPATH="${librarian_dir}"
 cd "${librarian_tests_dir}"
 
-python -m unittest "$@" test_*.py
+python3 -m unittest "$@" test_*.py
