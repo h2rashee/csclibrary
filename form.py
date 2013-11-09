@@ -156,7 +156,7 @@ class FormWindow:
                 if self.bt==0:
                     return {}
                 elif self.bt==1:
-                    return self.return_values()
+                    return self._return_values()
                 else:
                     self._mv_focus(+1)
             self.w.refresh()
@@ -241,7 +241,7 @@ class FormWindow:
     def _return_values(self):
         book = {}
         for k,e in zip(self.labels, self.entries):
-            if v!="" and k.lower()!="publish date":
+            if e!="" and k.lower()!="publish date":
                 book[k.lower()]=e.value
         return book
 
@@ -296,7 +296,7 @@ class BookForm(FormWindow):
         return {'lccn':lccn}
 
     def return_book(self):
-        return self.return_values()
+        return self._return_values()
 
     def handle_input(self,ch):
         if ch==10 or ch==curses.KEY_ENTER:
@@ -321,5 +321,5 @@ class CategoryForm(FormWindow):
     blabel = "Add"
     labels = ["Category"]
 
-    def return_values(self):
+    def _return_values(self):
         return self.entries
