@@ -3,13 +3,24 @@ import sqlite3
 
 import permissions
 
-dbFile = 'sqLibrary.db'
-bookTable = 'books'
-bookCategoryTable='book_categories'
-categoryTable = 'categories'
+_catalogue_db_file = 'sqLibrary.db'
+_book_table = 'books'
+_book_category_table='book_categories'
+_category_table = 'categories'
 
+_checkout_db_file = 'sqCheckout.db'
+_checkout_table = 'checked_out'
+_return_table = 'returned'
 
-bookTableCreation = '''
+_checkout_table_creation = '''
+CREATE TABLE IF NOT EXISTS checked_out
+    (id INTEGER UNIQUE, uwid STRING, date_out DATETIME DEFAULT current_timestamp);
+
+CREATE TABLE IF NOT EXISTS returned
+    (id INTEGER, uwid STRING, date_out DATETIME, date_in DATETIME DEFAULT current_timestamp);
+'''
+
+_book_table_creation = '''
 CREATE TABLE IF NOT EXISTS books
     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
      isbn, lccn, title, subtitle, authors, edition, 
@@ -30,7 +41,7 @@ columns = ['id', 'isbn', 'lccn',
            'publisher', 'publish year', 'publish month', 'publish location', 
            'pages', 'pagination', 'weight', 'last updated', 'deleted']
 
-bookTriggerCreation = '''
+_book_trigger_creation = '''
 
 CREATE TRIGGER IF NOT EXISTS update_books_time AFTER UPDATE ON books
 BEGIN
@@ -68,7 +79,7 @@ def _stringify(v):
 ##################################
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def addBook(book):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
     cols = []
     vals = []
@@ -77,7 +88,7 @@ def addBook(book):
             cols.append(_colify(k))
             vals.append(_stringify(v))
     
-    query = ("INSERT INTO "+bookTable+" ("+", ".join(cols)+") VALUES ("+
+    query = ("INSERT INTO "+_book_table+" ("+", ".join(cols)+") VALUES ("+
              ", ".join(vals)+");")
     c.execute(query)
     conn.commit()
@@ -89,21 +100,21 @@ def updateBook(book, bookID):
     Takes book attribute dictionary and a string representating the book ID
     number, and returns updates the book accordingly
     '''
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
     updates=[]
     for k,v in book.items():
         updates.append(_colify(k)+"="+_stringify(v))
-    query = ("UPDATE "+bookTable+" SET " +  ", ".join(updates)+" WHERE id = " +
+    query = ("UPDATE "+_book_table+" SET " +  ", ".join(updates)+" WHERE id = " +
              str(bookID)+";")
     c.execute(query)
     conn.commit()
     c.close()
 
 def getBooks():
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "SELECT * FROM "+bookTable+" WHERE deleted=0;"
+    query = "SELECT * FROM "+_book_table+" WHERE deleted=0;"
     c.execute(query)
     books = [_query_to_book(b) for b in c]
     c.close()
@@ -114,10 +125,10 @@ def getBooksByCategory(cat):
     Takes a string representating the category ID number, and returns
     non-deleted books in that category
     '''
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = ("SELECT "+",".join(map(_colify,columns))+" FROM "+bookTable+
-             " JOIN "+bookCategoryTable+
+    query = ("SELECT "+",".join(map(_colify,columns))+" FROM "+_book_table+
+             " JOIN "+_book_category_table+
              " USING (id) WHERE cat_id = :id AND deleted=0;")
     c.execute(query,cat)
     books = [_query_to_book(b) for b in c]
@@ -125,18 +136,18 @@ def getBooksByCategory(cat):
     return books
 
 def getRemovedBooks():
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "SELECT * FROM "+bookTable+" WHERE DELETED=1;"
+    query = "SELECT * FROM "+_book_table+" WHERE DELETED=1;"
     c.execute(query)
     books = [_query_to_book(b) for b in c]
     c.close()
     return books
 
 def getBookByID(bookid):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "SELECT * FROM "+bookTable+" WHERE id = "+str(bookid)+";"
+    query = "SELECT * FROM "+_book_table+" WHERE id = "+str(bookid)+";"
     c.execute(query)
     book = _query_to_book(c.fetchone())
     c.close()
@@ -145,18 +156,18 @@ def getBookByID(bookid):
 # removes book from catalogue
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def removeBook(bookid):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "UPDATE " +bookTable+ " SET deleted=1 WHERE id = "+str(bookid)+";"
+    query = "UPDATE " +_book_table+ " SET deleted=1 WHERE id = "+str(bookid)+";"
     c.execute(query)
     conn.commit()
     c.close()
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def removeBooks(books):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query1 = "UPDATE " +bookTable+ " SET deleted=1 WHERE id = :id;"
+    query1 = "UPDATE " +_book_table+ " SET deleted=1 WHERE id = :id;"
     for book in books:
         c.execute(query1, book)
     conn.commit()
@@ -165,9 +176,9 @@ def removeBooks(books):
 # restores trashed books
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def restoreBooks(books):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query1 = "UPDATE " +bookTable+ " SET deleted=0 WHERE id = :id;"
+    query1 = "UPDATE " +_book_table+ " SET deleted=0 WHERE id = :id;"
     for book in books:
         c.execute(query1,book)
     conn.commit()
@@ -176,18 +187,18 @@ def restoreBooks(books):
 # fully deletes book from books table
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteBook(bookid):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "DELETE FROM " +bookTable+ " WHERE id = "+str(bookid)+";"
+    query = "DELETE FROM " +_book_table+ " WHERE id = "+str(bookid)+";"
     c.execute(query)
     conn.commit()
     c.close()
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteBooks(books):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "DELETE FROM " +bookTable+ " WHERE id = :id;"
+    query = "DELETE FROM " +_book_table+ " WHERE id = :id;"
     for book in books:
         c.execute(query, book)
     conn.commit()
@@ -202,10 +213,10 @@ def _query_to_book(book_query):
 # Category related functions
 ########################################
 def getBookCategories(book):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = ("SELECT id,cat_id,category FROM "+bookCategoryTable+" JOIN "+
-             categoryTable+" USING (cat_id) WHERE id = :id ;")
+    query = ("SELECT id,cat_id,category FROM "+_book_category_table+" JOIN "+
+             _category_table+" USING (cat_id) WHERE id = :id ;")
     c.execute(query,book)
     cats = []
     for book_id,cat_id,cat_name in c:
@@ -215,9 +226,9 @@ def getBookCategories(book):
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def categorizeBook(book, cats):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = ("INSERT OR IGNORE INTO "+bookCategoryTable+
+    query = ("INSERT OR IGNORE INTO "+_book_category_table+
              " (id,cat_id) VALUES (?, ?);")
     for cat in cats:
         args = (book['id'],cat['id'])
@@ -227,9 +238,9 @@ def categorizeBook(book, cats):
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def uncategorizeBook(book, cats):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "DELETE FROM "+bookCategoryTable+" WHERE (id = ? AND cat_id = ?);"
+    query = "DELETE FROM "+_book_category_table+" WHERE (id = ? AND cat_id = ?);"
     for cat in cats:
         args = (book['id'],cat['id'])
         c.execute(query,args)
@@ -237,9 +248,9 @@ def uncategorizeBook(book, cats):
     c.close()
 
 def getCategories():
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = "SELECT cat_id, category FROM "+categoryTable+";"
+    query = "SELECT cat_id, category FROM "+_category_table+";"
     c.execute(query)
     cats = []
     for cat_id,cat in c:
@@ -249,9 +260,9 @@ def getCategories():
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def addCategory(cat):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query = ("INSERT OR IGNORE INTO "+categoryTable+" (category) VALUES ("
+    query = ("INSERT OR IGNORE INTO "+_category_table+" (category) VALUES ("
              +_stringify(cat)+");")
     c.execute(query)
     conn.commit()
@@ -259,11 +270,39 @@ def addCategory(cat):
 
 @permissions.check_permissions(permissions.PERMISSION_LIBCOM)
 def deleteCategories(cats):
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    query1 = "DELETE FROM " +categoryTable+ " WHERE cat_id = :id;"
+    query1 = "DELETE FROM " +_category_table+ " WHERE cat_id = :id;"
     for cat in cats:
         c.execute(query1, cat)
+    conn.commit()
+    c.close()
+
+#########################################
+# Book Checkout functions
+#########################################
+@permissions.check_permissions(permissions.PERMISSION_OFFICE)
+def checkout_book(book_id, uwid):
+    conn = sqlite3.connect(_checkout_db_file)
+    c = conn.cursor()
+    query = "INSERT INTO " + _checkout_table + " (id, uwid) VALUES (?, ?);"
+    c.execute(query, (book_id, uwid))
+    conn.commit()
+    c.close()
+
+@permissions.check_permissions(permissions.PERMISSION_OFFICE)
+def return_book(book_id):
+    conn = sqlite3.connect(_checkout_db_file)
+    c = conn.cursor()
+    query = "SELECT uwid,date_out FROM "+ _checkout_table + " WHERE id = :id ;"
+    c.execute(query, {"id": book_id})
+    tmp = c.fetchone()
+    uwid = tmp[0]
+    date_out = tmp[1]
+    query = "INSERT INTO " + _return_table + " (id, uwid, date_out) VALUES (?, ?, ?);"
+    query2 = "DELETE FROM " + _checkout_table + " WHERE id= :id ;"
+    c.execute(query, (book_id, uwid, date_out))
+    c.execute(query2, {"id": book_id});
     conn.commit()
     c.close()
 
@@ -271,19 +310,27 @@ def deleteCategories(cats):
 # Database initialization
 #########################################
 def _createBooksTable():
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    c.executescript(bookTableCreation)
+    c.executescript(_book_table_creation)
     conn.commit()
     c.close()
 
 def _createTriggers():
-    conn = sqlite3.connect(dbFile)
+    conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
-    c.executescript(bookTriggerCreation)
+    c.executescript(_book_trigger_creation)
+    conn.commit()
+    c.close()
+
+def _create_checkout_table():
+    conn = sqlite3.connect(_checkout_db_file)
+    c = conn.cursor()
+    c.executescript(_checkout_table_creation)
     conn.commit()
     c.close()
 
 def initializeDatabase():
     _createBooksTable()
     _createTriggers()
+    _create_checkout_table()

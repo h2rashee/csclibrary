@@ -8,6 +8,8 @@ Choose shown columns in browser
 Support for multiple copies
  - (better support, that is)
  - some way of identifying the physical ones with the virtual ones
+Search function in db_layer
+ - eventually something which takes things like "title:foo author:bar some other keywords"
 
 
 _Code Quality Improvements_
