@@ -209,6 +209,14 @@ def _query_to_book(book_query):
     # Empty entries return None, which are removed from the dict.
     return dict(filter(lambda t:t[1], zip(columns,book_query)))
 
+def _query_to_book_checkout(book_query):
+    # Make a dict out of column name and query results.
+    # Empty entries return None, which are removed from the dict.
+    b = _query_to_book(book_query)
+    b['uwid'] = book_query[-2]
+    b['date'] = book_query[-1]
+    return b
+
 #########################################
 # Category related functions
 ########################################
@@ -305,6 +313,24 @@ def return_book(book_id):
     c.execute(query2, {"id": book_id});
     conn.commit()
     c.close()
+
+def get_checkedout_books():
+    '''
+    retrieves checked out books. The returned books also have the fields
+    uwid: ID of person who signed out the book, and
+    date: date when the book was checked out
+    '''
+    conn = sqlite3.connect(_catalogue_db_file)
+    c = conn.cursor()
+    query = 'ATTACH "' + _checkout_db_file + '" AS co'
+    c.execute(query)
+    query = ("SELECT "+",".join(map(_colify,columns))+",uwid,date_out FROM "+_book_table+
+             " JOIN co."+_checkout_table+
+             " USING (id) ;")
+    c.execute(query)
+    books = [_query_to_book_checkout(b) for b in c]
+    c.close()
+    return books
 
 #########################################
 # Database initialization
