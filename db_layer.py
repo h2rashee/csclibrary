@@ -65,7 +65,7 @@ BEGIN
 END;
 '''
 
-################################3
+#################################
 # character escaping, etc for sql queries
 #################################
 def _colify(s):
@@ -327,6 +327,24 @@ def get_checkedout_books():
     query = ("SELECT "+",".join(map(_colify,columns))+",uwid,date_out FROM "+_book_table+
              " JOIN co."+_checkout_table+
              " USING (id) ;")
+    c.execute(query)
+    books = [_query_to_book_checkout(b) for b in c]
+    c.close()
+    return books
+
+def get_onshelf_books():
+    '''
+    retrieves checked out books. The returned books also have the fields
+    uwid: ID of person who signed out the book, and
+    date: date when the book was checked out
+    '''
+    conn = sqlite3.connect(_catalogue_db_file)
+    c = conn.cursor()
+    query = 'ATTACH "' + _checkout_db_file + '" AS co'
+    c.execute(query)
+    query = ("SELECT "+",".join(map(_colify,columns))+" FROM "+_book_table+
+             " LEFT JOIN co."+_checkout_table+
+             " USING (id) WHERE uwid ISNULL;")
     c.execute(query)
     books = [_query_to_book_checkout(b) for b in c]
     c.close()
