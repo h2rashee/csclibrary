@@ -7,12 +7,12 @@ Regex Search
 Choose shown columns in browser
 Support for multiple copies
  - (better support, that is)
- - some way of identifying the physical ones with the virtual ones
 Search function in db_layer
  - eventually something which takes things like "title:foo author:bar some other keywords"
 
 
 _Code Quality Improvements_
+Make the various windows centre themselves
 Document all functions
 Conform to python naming conventions and code style
 Make db_layer use a helper function to handle most of the database queries
@@ -37,3 +37,6 @@ Support UTF-8 for everything
 Search ignores Case (for lowercase search strings)
 Text entry supports longer string
 Home and End navigate to top and bottom of catalogue respectively.
+
+Support for multiple copies
+ - books will have their book_id written in pencil on inside cover
