@@ -8,6 +8,8 @@ import help_bar as helpBar
 
 import book_data
 
+import checkout as co
+
 
 stdscr=0
 hb=0
@@ -20,11 +22,14 @@ def menutest(s, l):
     stdscr=s
     curses.curs_set(0)
     (rows,cols)=stdscr.getmaxyx()
+    # set the default for the browser windows
+    browser.browserWindow._default_height = rows-10
+    browser.browserWindow._default_width = cols-10
     bar = curses.newwin(1,cols-2,rows-1,1)
     hb = helpBar.helpBar(bar)
     hb.command=menu_commands
     hb.refresh()
-    w = curses.newwin(10,40,(rows-10)//2, (cols-40)//2)
+    w = curses.newwin(15,40,(rows-10)//2, (cols-40)//2)
 
     menu(w, l)
     
@@ -94,30 +99,60 @@ def addForm():
     if len(book)!=0:
         db.addBook(book)
 
-def updateMenu():
-    w=curses.newwin(1,50,10,10)
-    w.addstr("I will be used to update or modify book records")
-    w.refresh()
+def browseMenu():
+    w=curses.newwin(3,5)
+    b = browser.bookBrowser(w,hb)
+    (r,c) = w.getmaxyx()
+    (my,mx)=stdscr.getmaxyx()
+    w.mvwin((my-r)//2 -2, (mx-c)//2)
+    b.refreshBooks()
+    b.eventLoop()
+    b.clear()
 
 def trashMenu():
-    (my,mx)=stdscr.getmaxyx()
     w=curses.newwin(3,5)
-    b = browser.trashBrowser(w,hb,my-10,mx-10)
+    b = browser.trashBrowser(w,hb)
     (r,c) = w.getmaxyx()
+    (my,mx)=stdscr.getmaxyx()
     w.mvwin((my-r)//2 -2, (mx-c)//2)
     b.refreshBooks()
     b.eventLoop()
     b.clear()
 
-def browseMenu():
-    (my,mx)=stdscr.getmaxyx()
+def checkedout_menu():
     w=curses.newwin(3,5)
-    b = browser.bookBrowser(w,hb, my-10, mx-10)
+    b = browser.bookBrowser(w,hb)
     (r,c) = w.getmaxyx()
+    (my,mx)=stdscr.getmaxyx()
     w.mvwin((my-r)//2 -2, (mx-c)//2)
-    b.refreshBooks()
+    b.load_data(db.get_checkedout_books())
+    b.columnDefs = [("id",0,3),
+                    ("uwid",0,8),
+                    ("date",0,10),
+                    ("title",100,None)]
+    b.calcColWidths()
     b.eventLoop()
     b.clear()
+
+def onshelf_menu():
+    w=curses.newwin(3,5)
+    b = browser.bookBrowser(w,hb)
+    (r,c) = w.getmaxyx()
+    (my,mx)=stdscr.getmaxyx()
+    w.mvwin((my-r)//2 -2, (mx-c)//2)
+    b.load_data(db.get_onshelf_books())
+    b.eventLoop()
+    b.clear()
+
+def co_menu():
+    w=curses.newwin(1,1)
+    (my,mx)=stdscr.getmaxyx()
+    co.checkout_procedure(w,hb,my//2,mx//2,mx) 
+
+def return_menu():
+    w=curses.newwin(1,1)
+    (my,mx)=stdscr.getmaxyx()
+    co.return_procedure(w,hb,my//2,mx//2,mx) 
 
 def catMenu():
     (my,mx)=stdscr.getmaxyx()
@@ -137,6 +172,12 @@ if __name__ == "__main__":
          ("Add Book", addForm),
          ("Categories", catMenu),
          ("View Trash", trashMenu),
+         ("",exit),
+         ("Check Out a Book", co_menu),
+         ("Return a Book", return_menu),
+         ("",exit),
+         ("View Checked Out Books", checkedout_menu),
+         ("View On Shelf Books", onshelf_menu),
          ("",exit),
          ("Exit", exit)]
     curses.wrapper(menutest, m)

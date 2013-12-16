@@ -4,6 +4,10 @@ import db_layer as db
 from form import BookForm,CategoryForm
 
 class browserWindow:
+    # These are actually class variables, not member variables? :<
+    _default_height=25
+    _default_width=60
+
     hl=0
     topline = 0
     entries = []
@@ -18,12 +22,20 @@ class browserWindow:
     last_search = ""
     found_index = 0
 
-    def __init__(self,window,helpbar, height=50, width=80):
+    def __init__(self,window,helpbar, height=0, width=0):
+        if not(height and width):
+            height = browserWindow._default_height
+            width = browserWindow._default_width
+            sys.stderr.write(str(height)+', '+str(width)+'\n')
         self.w = window
         self.hb = helpbar
         self.w.resize(height,width)
         self.updateGeometry()
         self.commands = self.cs+self.commands
+
+    def load_data(self, data=[]):
+        self.entries = data
+        self.selected = list(map(lambda x:False, self.entries))
 
     def sortByColumn(self, col):
         self.entries.sort(key=lambda k: k.get(col,"")) # key=dict.get(col))
@@ -255,6 +267,7 @@ class trashBrowser(browserWindow):
                   ('Title',60,None)]
     
     cs = [(' r', 'restore selected'), (' d', 'delete selected')]
+
     
     # redefinable functions
     def viewSelection(self,book):
@@ -282,8 +295,7 @@ class trashBrowser(browserWindow):
         db.deleteBooks(books)
 
     def refreshBooks(self):
-        self.entries = db.getRemovedBooks()
-        self.selected = list(map(lambda x:False, self.entries))
+        self.load_data(db.getRemovedBooks())
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
@@ -320,6 +332,7 @@ class bookBrowser(browserWindow):
                   ('Title',60,None)]
     
     cs = [(' u', 'update'), (' d', 'delete selected')]
+
     
     # redefinable functions
     def updateSelection(self,book):
@@ -362,19 +375,17 @@ class bookBrowser(browserWindow):
         db.removeBooks(books)
 
     def refreshBooks(self):
-        self.entries = db.getBooks()
-        self.selected = list(map(lambda x:False, self.entries))
+        self.load_data(db.get_books())
 
     def refreshBooksInCategory(self,cat):
-        self.entries = db.getBooksByCategory(cat)
-        self.selected = list(map(lambda x:False, self.entries))
+        self.load_data(db.getBooksByCategory(cat))
 
     def handleInput(self,ch):
         browserWindow.handleInput(self,ch)
         if ch == 117: #update on 'u'
             book = self.entries[self.hl]
             self.updateSelection(book)
-            self.entries[self.hl]=db.getBookByID(book['id'])
+            self.entries[self.hl]=db.get_book(book['id'])
             self.refresh()
         elif ch == 10:
             book = self.entries[self.hl]
@@ -400,23 +411,20 @@ class categoryBrowser(browserWindow):
     columnDefs = [('Category',100,None)]
     cs = [(' a', 'add category'), (' d', 'delete selected')]
 
-
     def refreshCategories(self):
-        self.entries = db.getCategories()
+        self.load_data(db.getCategories())
         self.sortByColumn('category')
-        self.selected = list(map(lambda x:False, self.entries))
 
     def addCategory(self):
         w = curses.newwin(1,1,10,10)
         cf = CategoryForm(w,self.hb)
         self.centreChild(w)
-        cats = cf.event_loop()
-        for c in cats:
-            db.addCategory(c)
+        cat = cf.event_loop()
+        db.addCategory(cat)
         cf.clear()
 
     def viewCategory(self):
-        w = curses.newwin(20,80,20,20)
+        w = curses.newwin(3,5)
         b = bookBrowser(w,self.hb)
         self.centreChild(w)
         b.refreshBooksInCategory(self.entries[self.hl])

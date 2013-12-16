@@ -322,4 +322,4 @@ class CategoryForm(FormWindow):
     labels = ["Category"]
 
     def _return_values(self):
-        return self.entries
+        return self.entries[0].value

@@ -111,7 +111,7 @@ def updateBook(book, bookID):
     conn.commit()
     c.close()
 
-def getBooks():
+def get_books():
     conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
     query = "SELECT * FROM "+_book_table+" WHERE deleted=0;"
@@ -144,7 +144,7 @@ def getRemovedBooks():
     c.close()
     return books
 
-def getBookByID(bookid):
+def get_book(bookid):
     conn = sqlite3.connect(_catalogue_db_file)
     c = conn.cursor()
     query = "SELECT * FROM "+_book_table+" WHERE id = "+str(bookid)+";"
@@ -346,7 +346,7 @@ def get_onshelf_books():
              " LEFT JOIN co."+_checkout_table+
              " USING (id) WHERE uwid ISNULL;")
     c.execute(query)
-    books = [_query_to_book_checkout(b) for b in c]
+    books = [_query_to_book(b) for b in c]
     c.close()
     return books
 
