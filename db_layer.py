@@ -3,12 +3,12 @@ import sqlite3
 
 import permissions
 
-_catalogue_db_file = 'sqLibrary.db'
+_catalogue_db_file = '/users/libcom/catalogue.db'
 _book_table = 'books'
 _book_category_table='book_categories'
 _category_table = 'categories'
 
-_checkout_db_file = 'sqCheckout.db'
+_checkout_db_file = '/users/libcom/checkout.db'
 _checkout_table = 'checked_out'
 _return_table = 'returned'
 
