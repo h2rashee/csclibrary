@@ -1,7 +1,6 @@
-import sys
 import curses
-from form import FormWindow,BookForm
-import db_layer as db
+from library.interface.form import FormWindow,BookForm
+import library.database as db
 
 
 class BookIDForm(FormWindow):

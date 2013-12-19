@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import curses
-import db_layer as db
-import browser
-import form
-import help_bar as helpBar
+import library.database as db
+import library.interface.browser as browser
+import library.interface.form as form
+import library.interface.help_bar as helpBar
+import library.interface.checkout as co
 
-import book_data
+from  library import book_data
 
-import checkout as co
 
 
 stdscr=0

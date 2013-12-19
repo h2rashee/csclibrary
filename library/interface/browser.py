@@ -1,7 +1,6 @@
-import sys
 import curses
-import db_layer as db
-from form import BookForm,CategoryForm
+import library.database as db
+from library.interface.form import BookForm,CategoryForm
 
 class browserWindow:
     # These are actually class variables, not member variables? :<
@@ -26,7 +25,6 @@ class browserWindow:
         if not(height and width):
             height = browserWindow._default_height
             width = browserWindow._default_width
-            sys.stderr.write(str(height)+', '+str(width)+'\n')
         self.w = window
         self.hb = helpbar
         self.w.resize(height,width)
@@ -135,7 +133,6 @@ class browserWindow:
 
     def search(self, string):
         case_sensitive = not(string.islower())
-        #sys.stderr.write(str(case_sensitive)+'\n')
         i = 0
         found = False
         for e in self.entries:

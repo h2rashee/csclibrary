@@ -1,5 +1,4 @@
 import curses
-import sys
 
 
 class TextEntry:
@@ -44,7 +43,6 @@ class TextEntry:
         self.redraw()
 
     def gain_focus(self):
-        #sys.stderr.write('I have focus!\n')
         self.focus = True
         self._mv_cursor(+len(self.value))
         self.start = max(0,self.cursor-self.width) 
@@ -150,7 +148,6 @@ class FormWindow:
 
         ch = self.w.getch()
         while ch != 27:
-            #sys.stderr.write(curses.keyname(ch).decode('utf-8'))
             self.handle_input(ch)
             if ch==10 or ch==curses.KEY_ENTER:
                 if self.bt==0:
@@ -187,12 +184,9 @@ class FormWindow:
     def _set_entries(self,book):
         e = 0
         for l in self.labels:
-            #sys.stderr.write('updating label: '+l+'\n')
             if l.lower() in book:
-                #sys.stderr.write('   '+l+' found\n')
                 self.entries[e].value = str(book[l.lower()])
             else:
-                #sys.stderr.write('   '+l+' notfound\n')
                 self.entries[e].value = ""
             e += 1 
 
@@ -303,7 +297,6 @@ class BookForm(FormWindow):
             if self.hl==0:          # lookup by isbn
                 book = self.lookup_isbn(self.entries[0].value)
                 if book != {}:
-                    #sys.stderr.write('updating entries\n')
                     self._set_entries(book)
                 self.refresh()
                 self._mv_focus(+7)

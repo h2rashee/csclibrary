@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "./librarian.py", line 134, in <module>
+    curses.wrapper(menutest, m)
+  File "/usr/lib/python3.2/curses/wrapper.py", line 43, in wrapper
+    return func(stdscr, *args, **kwds)
+  File "./librarian.py", line 29, in menutest
+    menu(w, l)
+  File "./librarian.py", line 66, in menu
+    f()
+  File "./librarian.py", line 115, in browseMenu
+    b.eventLoop()
+  File "/users/jladan/src/library/browser.py", line 180, in eventLoop
+    ch = self.handleInput(ch)
+  File "/users/jladan/src/library/browser.py", line 366, in handleInput
+    browserWindow.handleInput(self,ch)
+  File "/users/jladan/src/library/browser.py", line 203, in handleInput
+    string = self.hb.getSearch()
+  File "/users/jladan/src/library/help_bar.py", line 61, in getSearch
+    string = string + char
+TypeError: Can't convert 'bytes' object to str implicitly

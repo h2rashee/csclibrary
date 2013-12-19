@@ -1,7 +1,6 @@
-import sys
 import sqlite3
 
-import permissions
+from  library import permissions
 
 _catalogue_db_file = '/users/libcom/catalogue.db'
 _book_table = 'books'

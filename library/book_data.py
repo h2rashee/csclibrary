@@ -6,7 +6,6 @@ except ImportError:
             from urllib2 import urlopen,URLError
 from json import loads,dumps
 from socket import timeout
-import sys
 
 """ Library Book Type Description:
 The book is a dictionary of the form { string : a, ... }

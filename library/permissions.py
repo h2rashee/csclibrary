@@ -1,7 +1,7 @@
 import grp
 import os
 
-import exceptions
+from library import exceptions
 
 class _PermissionLevel:
     def __init__(self, group_name, pretty_name):
