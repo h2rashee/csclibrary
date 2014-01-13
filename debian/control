@@ -1,0 +1,13 @@
+Source: library
+Section: admin
+Priority: optional
+Maintainer: Systems Committee <syscom@csclub.uwaterloo.ca>
+Uploaders: John Ladan <jladan@csclub.uwaterloo.ca>,
+Build-Depends: debhelper (>= 5.0.0), python3 (>= 3.2)
+Standards-Version: 1.0
+
+Package: library
+Architecture: all
+Depends: sqlite3, python3 (>= 3.2), ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Description: Computer Science Club Library Program
+ This package contains the CSC Library program

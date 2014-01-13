@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+
+build: 
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+	python3 setup.py  -q clean -a --build-base=build-library
+	rm -rf build-library
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_installdirs
+	python3 setup.py  -q build --build-base=build-library  install --no-compile -O0 --prefix=/usr --root=debian/library
+
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_installinit --name ceod -- start 95 2 3 4 5 . stop 05 0 1 6 .
+	dh_install
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_python3
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-indep:
+
+binary: binary-indep binary-arch
+
+.PHONY: clean build binary-indep binary-arch binary install

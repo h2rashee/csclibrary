@@ -1,0 +1,5 @@
+library (1.0-1) UNRELEASED; urgency=low
+
+  * Initial release. (Closes: #XXXXXX)
+
+ -- John Ladan <jladan@taurine.csclub.uwaterloo.ca>  Sun, 12 Jan 2014 19:19:10 -0500
