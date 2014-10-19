@@ -27,7 +27,8 @@ Error on search
  - related to strings in Python3
 When the top element shown is highlighted in the browser window, and pgUp is pressed (causing a scrollup), the bottom border of the window turns into 'qqqqqqqq'.
  - does not happen when up_arrow is pressed.
-
+Error checking out an already checked out book
+ - SQLite integrity check failure
 
 
 

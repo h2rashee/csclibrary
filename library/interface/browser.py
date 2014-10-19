@@ -471,7 +471,6 @@ class categorySelector(browserWindow):
     def refreshSelected(self):
         self.original = list(map(lambda x:False, self.entries))
         cats = db.getBookCategories(self.book)
-        cats.sort()
         cats.sort(key=lambda k: k.get('category')) # key=dict.get(col))
         i = 0
         j = 0
