@@ -2,12 +2,17 @@ import sqlite3
 
 from  library import permissions
 
+# because of the way that SQLite works we need to have these two
+# files be different, because the Office staff needs read/write
+# permission to the directory that contains the checkout.db file.
+# (sqlite needs to create temporary files in that directory)
+
 _catalogue_db_file = '/users/libcom/catalogue.db'
 _book_table = 'books'
 _book_category_table='book_categories'
 _category_table = 'categories'
 
-_checkout_db_file = '/users/libcom/checkout.db'
+_checkout_db_file = '/users/libcom/checkout/checkout.db'
 _checkout_table = 'checked_out'
 _return_table = 'returned'
 
@@ -292,10 +297,17 @@ def deleteCategories(cats):
 def checkout_book(book_id, uwid):
     conn = sqlite3.connect(_checkout_db_file)
     c = conn.cursor()
-    query = "INSERT INTO " + _checkout_table + " (id, uwid) VALUES (?, ?);"
-    c.execute(query, (book_id, uwid))
-    conn.commit()
-    c.close()
+
+    try:
+        query = "INSERT INTO " + _checkout_table + " (id, uwid) VALUES (?, ?);"
+        c.execute(query, (book_id, uwid))
+    except sqlite3.IntegrityError:
+        return False # didn't work
+    finally:
+        conn.commit()
+        c.close()
+
+    return True # worked
 
 @permissions.check_permissions(permissions.PERMISSION_OFFICE)
 def return_book(book_id):
